@@ -15,7 +15,7 @@
  * /repo-name/ subdirectory rather than the domain root.
  * ===================================================================== */
 
-const CACHE_VERSION = 'fodmap-v10';
+const CACHE_VERSION = 'fodmap-v11';
 
 /* ---------------------------------------------------------------------
  * THE OCR CACHE — a second cache, on purpose

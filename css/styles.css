@@ -65,12 +65,23 @@ body {
   overflow: hidden;
 }
 
+/* .ds-card is display:block; keep the column so the list scrolls inside
+ * the white surface and the Scan/Gallery dock stays below it. */
+.foods.ds-card {
+  display: flex;
+}
+
+.foods__list > .ds-list-row + .ds-list-row {
+  border-top: var(--border-hairline);
+}
+
 .foods__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
   flex: 0 0 auto;
+  min-width: 0;
 }
 
 .foods__title {
@@ -90,24 +101,41 @@ body {
   flex: 0 0 auto;
 }
 
-.foods__filters {
+.home .foods__filters.ds-chip-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   flex: 0 0 auto;
   gap: var(--space-2);
-  overflow: visible;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
   padding-block: 0;
 }
 
 .foods__filters .ds-chip {
-  flex: 1 1 0;
-  justify-content: center;
   min-width: 0;
-  padding-inline: var(--space-3);
+  width: 100%;
+  justify-content: center;
+  padding-inline: var(--space-2);
+  overflow: hidden;
   -webkit-appearance: none;
   appearance: none;
 }
 
+/* All is a filter, not a verdict: cream-alt and the selected green ring
+ * both read lime on the white card. Grey fill, ink, hairline-adjacent
+ * unknown border — the DS grey ramp, nothing from the brand greens. */
+.foods__filters .ds-chip[data-level="all"] {
+  --ds-chip-fill: var(--color-semantic-unknown-bg);
+  --ds-chip-ink: var(--color-text-primary);
+}
+
 .foods__filters .ds-chip--selected {
   border-color: var(--ds-chip-ink);
+}
+
+.foods__filters .ds-chip[data-level="all"].ds-chip--selected {
+  border-color: var(--color-semantic-unknown);
 }
 
 .foods__list {
