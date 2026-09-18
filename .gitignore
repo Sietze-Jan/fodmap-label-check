@@ -18,3 +18,6 @@ npm-debug.log*
 # Local scratch
 *.local
 tmp/
+
+# Local design reference images, not part of the app
+Style refferences/
