@@ -87,8 +87,10 @@ const capture = initCapture({
 const foodsSearch = document.querySelector('#foods-search');
 const foodsSearchWrap = foodsSearch.closest('.ds-search');
 const foodsSearchClear = document.querySelector('#foods-search-clear');
+const foodsFilters = document.querySelector('#foods-filters');
 const foodsList = document.querySelector('#foods-list');
 const foodsEmpty = document.querySelector('#foods-empty');
+let foodsLevel = 'all';
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -129,7 +131,18 @@ function renderFoods(foods) {
 function applyFoodsQuery() {
   const query = foodsSearch.value;
   foodsSearchWrap.classList.toggle('is-filled', query.length > 0);
-  renderFoods(filterFoods(FOODS, query));
+  renderFoods(filterFoods(FOODS, query, foodsLevel));
+}
+
+function setFoodsLevel(level) {
+  if (!level || level === foodsLevel) return;
+  foodsLevel = level;
+  for (const chip of foodsFilters.querySelectorAll('[data-level]')) {
+    const selected = chip.dataset.level === foodsLevel;
+    chip.classList.toggle('ds-chip--selected', selected);
+    chip.setAttribute('aria-checked', selected ? 'true' : 'false');
+  }
+  applyFoodsQuery();
 }
 
 foodsSearch.addEventListener('input', applyFoodsQuery);
@@ -138,7 +151,12 @@ foodsSearchClear.addEventListener('click', () => {
   applyFoodsQuery();
   foodsSearch.focus();
 });
-renderFoods(FOODS);
+foodsFilters.addEventListener('click', (event) => {
+  const chip = event.target.closest('[data-level]');
+  if (!chip || !foodsFilters.contains(chip)) return;
+  setFoodsLevel(chip.dataset.level);
+});
+applyFoodsQuery();
 
 /* ---------------------------------------------------------------- results
  *
@@ -288,7 +306,7 @@ if (initial) run(initial);
  * EXPECTED_CACHE must match CACHE_VERSION in sw.js. If an older worker
  * is still installed, drop it and reload so a cached index.html from
  * before the camera UI cannot hide the Scan button. */
-const EXPECTED_CACHE = 'fodmap-v9';
+const EXPECTED_CACHE = 'fodmap-v10';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

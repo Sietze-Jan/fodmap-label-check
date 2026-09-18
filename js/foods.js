@@ -65,11 +65,19 @@ export function groupFoods(entries = INGREDIENTS) {
     });
 }
 
-/** Filter as the user types. Empty / whitespace query returns the full list. */
-export function filterFoods(foods, query) {
+/**
+ * Filter by traffic-light level first, then substring-match aliases.
+ * Empty / whitespace query returns every food at that level. Omitted or
+ * `"all"` level is the unfiltered catalog.
+ */
+export function filterFoods(foods, query, level) {
+  const byLevel =
+    !level || level === 'all'
+      ? foods
+      : foods.filter((food) => food.level === level);
   const needle = normalise(query);
-  if (!needle) return foods;
-  return foods.filter((food) => food.keys.some((key) => key.includes(needle)));
+  if (!needle) return byLevel;
+  return byLevel.filter((food) => food.keys.some((key) => key.includes(needle)));
 }
 
 export const FOODS = groupFoods();

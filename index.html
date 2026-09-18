@@ -44,6 +44,7 @@
 
     <section class="foods" aria-labelledby="foods-title">
       <div class="foods__head">
+        <h2 id="foods-title" class="ds-headline foods__title">Fodmap list</h2>
         <div class="ds-search foods__search">
           <span data-icon="search"></span>
           <label class="ds-visually-hidden" for="foods-search">Search foods</label>
@@ -63,7 +64,16 @@
             <span class="ds-visually-hidden">Clear search</span>
           </button>
         </div>
-        <h2 id="foods-title" class="ds-headline foods__title">Foods</h2>
+      </div>
+      <div
+        id="foods-filters"
+        class="foods__filters ds-chip-row"
+        role="radiogroup"
+        aria-label="Filter by FODMAP level">
+        <button type="button" class="ds-chip ds-chip--selectable ds-chip--neutral ds-chip--selected" data-level="all" role="radio" aria-checked="true">All</button>
+        <button type="button" class="ds-chip ds-chip--selectable ds-chip--red" data-level="red" role="radio" aria-checked="false">Avoid</button>
+        <button type="button" class="ds-chip ds-chip--selectable ds-chip--amber" data-level="yellow" role="radio" aria-checked="false">Limit</button>
+        <button type="button" class="ds-chip ds-chip--selectable ds-chip--green" data-level="green" role="radio" aria-checked="false">Eat</button>
       </div>
       <ul id="foods-list" class="ds-list foods__list"></ul>
       <p id="foods-empty" class="ds-footnote ds-text-secondary foods__empty" hidden>No matching foods.</p>
@@ -122,7 +132,7 @@
        cached app.js from before the camera UI, the module below never
        gets a chance to unregister it. This runs from the HTML itself. -->
   <script>
-    window.FODMAP_CACHE = 'fodmap-v9';
+    window.FODMAP_CACHE = 'fodmap-v10';
     if ('serviceWorker' in navigator) {
       caches.keys().then(function (keys) {
         var stale = keys.filter(function (key) {

@@ -710,6 +710,23 @@ test('search is live and accent-insensitive', 'x', () => {
   }
 });
 
+test('Avoid filter hides Eat items', 'x', () => {
+  const hits = filterFoods(FOODS, '', 'red');
+  if (!hits.length) throw new Error('expected Avoid items');
+  if (hits.some((food) => food.level !== 'red')) {
+    throw new Error(
+      `Avoid filter should hide Eat/Limit; got [${[...new Set(hits.map((f) => f.level))].join(', ')}]`
+    );
+  }
+  const garlic = filterFoods(FOODS, 'ail', 'red');
+  if (!garlic.some((food) => food.label === 'Garlic')) {
+    throw new Error('Avoid + alias search should still find Garlic');
+  }
+  if (garlic.some((food) => food.level !== 'red')) {
+    throw new Error('Avoid + search should not leak Eat items');
+  }
+});
+
 // =====================================================================
 // Summary
 // =====================================================================
