@@ -123,8 +123,9 @@ body {
 }
 
 /* All is a filter, not a verdict: cream-alt and the selected green ring
- * both read lime on the white card. Grey fill, ink, hairline-adjacent
- * unknown border — the DS grey ramp, nothing from the brand greens. */
+ * both read lime on the white card. Grey fill, ink, and a hairline
+ * ring so close to the fill it barely reads as a border. DS grey ramp
+ * only — nothing from the brand greens. */
 .foods__filters .ds-chip[data-level="all"] {
   --ds-chip-fill: var(--color-semantic-unknown-bg);
   --ds-chip-ink: var(--color-text-primary);
@@ -135,7 +136,7 @@ body {
 }
 
 .foods__filters .ds-chip[data-level="all"].ds-chip--selected {
-  border-color: var(--color-semantic-unknown);
+  border-color: var(--color-border-hairline);
 }
 
 .foods__list {
