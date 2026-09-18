@@ -35,54 +35,39 @@
 
     <div id="capture-status" class="capture-status" role="status" aria-live="polite" hidden></div>
 
-    <div class="home__secondary ds-stack ds-stack--2">
-      <details class="ds-collapsible home__fallback">
-        <summary class="ds-collapsible__summary">
-          Paste ingredients instead
-          <span class="ds-disclosure__chevron" data-icon="chevron-down"></span>
-        </summary>
-        <div class="ds-collapsible__body">
-          <form id="scan-form" class="ds-stack ds-stack--3">
-            <label class="ds-visually-hidden" for="label-text">Ingredient list</label>
-            <textarea
-              id="label-text"
-              class="ds-textarea"
-              rows="5"
-              placeholder="Paste the ingredient list here if the camera misread it."
-              autocapitalize="off"
-              autocomplete="off"
-              autocorrect="off"
-              spellcheck="false"></textarea>
-            <button type="submit" class="ds-button ds-button--secondary ds-button--block">Check</button>
-          </form>
-        </div>
-      </details>
+    <p class="ds-footnote ds-text-secondary home__disclaimer">
+      <strong>This is a shopping aid, not medical advice.</strong> Only the
+      Monash FODMAP app has lab-tested serving sizes; everything here is an
+      estimate from reading ingredient names. Amber always means “check the
+      portion in Monash”. Recipes change, so scan the label each time.
+    </p>
 
-      <details class="ds-collapsible">
-        <summary class="ds-collapsible__summary">
-          How to use this
-          <span class="ds-disclosure__chevron" data-icon="chevron-down"></span>
-        </summary>
-        <div class="ds-collapsible__body">
-          <p><strong>Tap “Scan label”</strong> to photograph the ingredient list.
-            The first scan downloads the text recogniser, which takes a moment on
-            mobile data; after that it works offline.</p>
-          <p><strong>Most accurate:</strong> the “FODMAP” Shortcut. Tap it (or your
-            Action Button), photograph the ingredient list, and the result opens here
-            automatically. It uses Apple’s own text recognition, which reads small
-            print on shiny packets better than anything in a browser.</p>
-          <p>Photograph the ingredient list on the <em>back</em> of the pack, not the
-            front. Get close, keep the label flat, and use good light.</p>
+    <section class="foods" aria-labelledby="foods-title">
+      <div class="foods__head">
+        <div class="ds-search foods__search">
+          <span data-icon="search"></span>
+          <label class="ds-visually-hidden" for="foods-search">Search foods</label>
+          <input
+            id="foods-search"
+            class="ds-search__input"
+            type="search"
+            placeholder="Search"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            enterkeyhint="search"
+            aria-controls="foods-list">
+          <button type="button" class="ds-search__clear" id="foods-search-clear">
+            <span data-icon="close" data-icon-size="sm"></span>
+            <span class="ds-visually-hidden">Clear search</span>
+          </button>
         </div>
-      </details>
-
-      <p class="ds-footnote ds-text-secondary home__disclaimer">
-        <strong>This is a shopping aid, not medical advice.</strong> Only the
-        Monash FODMAP app has lab-tested serving sizes; everything here is an
-        estimate from reading ingredient names. Amber always means “check the
-        portion in Monash”. Recipes change, so scan the label each time.
-      </p>
-    </div>
+        <h2 id="foods-title" class="ds-headline foods__title">Foods</h2>
+      </div>
+      <ul id="foods-list" class="ds-list foods__list"></ul>
+      <p id="foods-empty" class="ds-footnote ds-text-secondary foods__empty" hidden>No matching foods.</p>
+    </section>
 
     <div class="home__dock">
       <button type="button" id="capture-camera" class="ds-button ds-button--lime ds-button--lg ds-button--block">
@@ -137,7 +122,7 @@
        cached app.js from before the camera UI, the module below never
        gets a chance to unregister it. This runs from the HTML itself. -->
   <script>
-    window.FODMAP_CACHE = 'fodmap-v7';
+    window.FODMAP_CACHE = 'fodmap-v9';
     if ('serviceWorker' in navigator) {
       caches.keys().then(function (keys) {
         var stale = keys.filter(function (key) {

@@ -15,7 +15,7 @@
  * /repo-name/ subdirectory rather than the domain root.
  * ===================================================================== */
 
-const CACHE_VERSION = 'fodmap-v7';
+const CACHE_VERSION = 'fodmap-v9';
 
 /* ---------------------------------------------------------------------
  * THE OCR CACHE — a second cache, on purpose
@@ -76,6 +76,7 @@ const ASSETS = [
   './js/app.js',
   './js/analyse.js',
   './js/capture.js',
+  './js/foods.js',
   './js/gauge.js',
   './js/icons.js',
   './js/image-prep.js',

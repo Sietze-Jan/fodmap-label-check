@@ -18,7 +18,10 @@
  * ===================================================================== */
 
 import { analyse, normalise, getPreparedEntries } from '../js/analyse.js';
+import { groupFoods, filterFoods, FOODS } from '../js/foods.js';
+import { INGREDIENTS } from '../js/ingredients.js';
 import { bucketCountSubtitle } from '../js/render.js';
+import { gaugeShares } from '../js/gauge.js';
 
 let passed = 0;
 let failed = 0;
@@ -535,6 +538,177 @@ test(
     }
   }
 );
+
+// =====================================================================
+console.log('\nComposition per 100g');
+// =====================================================================
+
+function compositionTotal(result) {
+  const c = result.composition;
+  return c.green + c.yellow + c.red + c.unknown;
+}
+
+test(
+  'QUID percentages become grams per 100g',
+  'Ingrédients: tomates 80%, oignon 12%, sel, basilic.',
+  (r) => {
+    if (Math.abs(compositionTotal(r) - 100) > 0.05) {
+      throw new Error(`composition should sum to 100g, got ${compositionTotal(r)}`);
+    }
+    if (r.composition.red < 11 || r.composition.red > 13) {
+      throw new Error(`onion at 12% should be ~12g red, got ${r.composition.red}`);
+    }
+    if (r.composition.green < 86 || r.composition.green > 90) {
+      throw new Error(`expected ~88g green, got ${r.composition.green}`);
+    }
+    if (r.composition.yellow !== 0) {
+      throw new Error(`expected no amber share, got ${r.composition.yellow}`);
+    }
+  }
+);
+
+test(
+  'earlier ingredients weigh more when the label has no %',
+  'Ingrédients: oignon, riz.',
+  (r) => {
+    if (r.composition.red <= r.composition.green) {
+      throw new Error(
+        `first-listed onion should outweigh rice; red=${r.composition.red} green=${r.composition.green}`
+      );
+    }
+    if (r.composition.red < 60 || r.composition.red > 70) {
+      throw new Error(`2/3 of a two-item list should be ~67g, got ${r.composition.red}`);
+    }
+  }
+);
+
+test(
+  'trace-region onion stays small even when always flagged',
+  'Ingrédients: riz, eau, huile de tournesol, sel, dont moins de 2%: oignon.',
+  (r, t) => {
+    t.flagged(r, 'red', 'Onion');
+    if (r.composition.red > 3) {
+      throw new Error(`trace onion should be capped near 2g, got ${r.composition.red}`);
+    }
+    if (r.composition.green < 95) {
+      throw new Error(`expected mostly green, got ${r.composition.green}`);
+    }
+  }
+);
+
+test(
+  'trilingual panels are not counted three times',
+  `Ingrédients: tomates 90%, oignon 10%.
+   Zutaten: Tomaten 90%, Zwiebel 10%.
+   Ingredienti: pomodori 90%, cipolla 10%.`,
+  (r) => {
+    if (r.composition.red < 9 || r.composition.red > 11) {
+      throw new Error(`should keep the first panel's 10% onion, got ${r.composition.red}`);
+    }
+  }
+);
+
+test(
+  'unreadable results fill the ring as unknown',
+  'xyz',
+  (r) => {
+    if (r.composition.unknown !== 100) {
+      throw new Error(`expected 100g unknown, got ${JSON.stringify(r.composition)}`);
+    }
+  }
+);
+
+test(
+  'dotted donut paints wedges in proportion',
+  'x',
+  () => {
+    const svg = gaugeShares({ green: 70, amber: 20, red: 10 }, { variant: 'ring' });
+    const count = (name) => (svg.match(new RegExp(`ds-gauge__dot--${name}`, 'g')) || []).length;
+    const green = count('green');
+    const amber = count('amber');
+    const red = count('red');
+    const total = green + amber + red;
+    if (total < 100) throw new Error(`expected a dense ring, got ${total} dots`);
+    const g = green / total;
+    const a = amber / total;
+    const d = red / total;
+    if (g < 0.62 || g > 0.78) throw new Error(`green wedge ${g} off 0.70`);
+    if (a < 0.12 || a > 0.28) throw new Error(`amber wedge ${a} off 0.20`);
+    if (d < 0.04 || d > 0.16) throw new Error(`red wedge ${d} off 0.10`);
+  }
+);
+
+// =====================================================================
+console.log('\nFood catalog');
+// =====================================================================
+
+function findFood(foods, label, level) {
+  return foods.find((food) => food.label === label && food.level === level);
+}
+
+test('folds language variants of onion into one Avoid row', 'x', () => {
+  const onion = findFood(FOODS, 'Onion', 'red');
+  if (!onion) throw new Error('expected an Onion / red row');
+  const onions = FOODS.filter((food) => food.label === 'Onion' && food.level === 'red');
+  if (onions.length !== 1) {
+    throw new Error(`expected 1 Onion/red row, got ${onions.length}`);
+  }
+  const blob = onion.keys.join(' ');
+  for (const alias of ['oignon', 'zwiebel', 'cipolla', 'onion']) {
+    if (!blob.includes(alias)) {
+      throw new Error(`Onion keys missing "${alias}": ${blob}`);
+    }
+  }
+  const powder = findFood(FOODS, 'Onion powder', 'red');
+  if (!powder) throw new Error('expected Onion powder to stay a separate row');
+});
+
+test('catalog is derived from the ingredient table, not a second copy', 'x', () => {
+  const grouped = groupFoods(INGREDIENTS);
+  if (grouped.length >= INGREDIENTS.length) {
+    throw new Error(
+      `expected grouping to collapse variants (${INGREDIENTS.length} entries -> ${grouped.length} foods)`
+    );
+  }
+  if (grouped.length < 50) {
+    throw new Error(`expected a full catalog, got ${grouped.length} foods`);
+  }
+  if (FOODS.length !== grouped.length) {
+    throw new Error('FOODS cache does not match groupFoods()');
+  }
+});
+
+test('search matches any language alias while the row stays English', 'x', () => {
+  const cases = [
+    ['oignon', 'Onion'],
+    ['Zwiebel', 'Onion'],
+    ['cipolla', 'Onion'],
+    ['ail', 'Garlic'],
+    ['échalote', 'Shallot'],
+  ];
+  for (const [query, label] of cases) {
+    const hits = filterFoods(FOODS, query);
+    if (!hits.some((food) => food.label === label)) {
+      throw new Error(`"${query}" should find ${label}; got [${hits.map((f) => f.label).join(', ')}]`);
+    }
+  }
+  const empty = filterFoods(FOODS, '   ');
+  if (empty.length !== FOODS.length) {
+    throw new Error(`empty query should return the full list (${FOODS.length}), got ${empty.length}`);
+  }
+});
+
+test('search is live and accent-insensitive', 'x', () => {
+  const a = filterFoods(FOODS, 'AIL').map((f) => f.label);
+  const b = filterFoods(FOODS, 'aïl').map((f) => f.label);
+  if (!a.includes('Garlic') || !b.includes('Garlic')) {
+    throw new Error(`expected Garlic for AIL/aïl, got ${a.join(', ')} / ${b.join(', ')}`);
+  }
+  const miss = filterFoods(FOODS, 'zzzz-not-a-food');
+  if (miss.length !== 0) {
+    throw new Error(`expected no hits, got [${miss.map((f) => f.label).join(', ')}]`);
+  }
+});
 
 // =====================================================================
 // Summary

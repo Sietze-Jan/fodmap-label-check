@@ -28,44 +28,118 @@ body {
 /* ---------------------------------------------------------------- home */
 
 .home {
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
-  /* Two 60px CTAs + gap + dock padding + home indicator. */
-  padding-bottom: calc(
-    (var(--control-height-primary) * 2) + var(--space-3) + var(--space-4) +
-    var(--space-4) + env(safe-area-inset-bottom) + var(--space-6)
-  );
+  gap: var(--space-5);
+  /* Dock is in the flex flow (not fixed), so it owns the home-indicator
+   * inset and the list sizes itself to the space above. */
+  padding-bottom: 0;
+}
+
+.home__hero,
+.home__disclaimer,
+#capture-status {
+  flex: 0 0 auto;
 }
 
 .home__hero {
   padding-top: var(--space-6);
 }
 
-.home__secondary {
-  margin-top: auto;
-}
-
 .home__disclaimer {
   margin: 0;
 }
 
-/* Thumb-reach dock. Cream fill, no shadow: the page is already cream,
- * so elevation-0 is correct. Safe-area padding keeps the buttons above
- * the iOS home indicator. */
+/* ---------------------------------------------------------------- foods */
+
+.foods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.foods__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex: 0 0 auto;
+}
+
+.foods__search {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 16rem;
+}
+
+.foods__search .ds-icon {
+  flex: 0 0 auto;
+}
+
+.foods__title {
+  flex: 0 0 auto;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.foods__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.foods__list .ds-list-row {
+  min-height: auto;
+  padding-block: var(--space-2);
+  padding-inline: 0;
+  gap: var(--space-3);
+}
+
+.foods__list .ds-dot {
+  flex: 0 0 auto;
+}
+
+/* .ds-list-row__title sets primary ink later in components.css, so the
+ * traffic-light colour utilities have to be repeated here. */
+.foods__list .ds-list-row__title.ds-text-red {
+  color: var(--color-semantic-red);
+}
+.foods__list .ds-list-row__title.ds-text-amber {
+  color: var(--color-semantic-orange);
+}
+.foods__list .ds-list-row__title.ds-text-green {
+  color: var(--color-semantic-green);
+}
+
+.foods__empty {
+  margin: 0;
+  padding-block: var(--space-4);
+  flex: 0 0 auto;
+}
+
+/* Thumb-reach dock. In the home column, not position:fixed, so the
+ * scrolling food list is sized to the space above it and never sits
+ * under the buttons. Cream fill, no shadow. Safe-area padding keeps
+ * the buttons above the iOS home indicator. */
 .home__dock {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   z-index: 20;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  max-width: 640px;
-  margin-inline: auto;
-  padding: var(--space-4);
+  flex: 0 0 auto;
+  width: 100%;
+  padding-inline: 0;
+  padding-top: var(--space-4);
   padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
   background: var(--color-surface-page-default);
 }
@@ -194,8 +268,15 @@ body.is-results-open {
 
 .results-gauge {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
   padding-block: var(--space-2);
+}
+
+.results-gauge__note {
+  max-width: 22rem;
+  text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {

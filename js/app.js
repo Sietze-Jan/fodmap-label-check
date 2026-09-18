@@ -14,11 +14,16 @@
 import { analyse } from './analyse.js';
 import { render } from './render.js';
 import { initCapture } from './capture.js';
+import { FOODS, filterFoods } from './foods.js';
 import { icon } from './icons.js';
 
+const LEVEL_UI = {
+  red: { dot: 'ds-dot--red', text: 'ds-text-red', name: 'Avoid' },
+  yellow: { dot: 'ds-dot--amber', text: 'ds-text-amber', name: 'Limit' },
+  green: { dot: 'ds-dot--green', text: 'ds-text-green', name: 'Eat' },
+};
+
 const home = document.querySelector('#home');
-const input = document.querySelector('#label-text');
-const form = document.querySelector('#scan-form');
 const results = document.querySelector('#results');
 const resultsLayer = document.querySelector('#results-layer');
 const resultsSheet = document.querySelector('#results-sheet');
@@ -32,7 +37,10 @@ resultsClose.insertAdjacentHTML('afterbegin', icon('close', { size: 'md' }));
 scanAnother.insertAdjacentHTML('afterbegin', icon('scan', { size: 'md' }));
 
 for (const slot of document.querySelectorAll('[data-icon]')) {
-  slot.insertAdjacentHTML('beforeend', icon(slot.dataset.icon, { size: 'md' }));
+  slot.insertAdjacentHTML(
+    'beforeend',
+    icon(slot.dataset.icon, { size: slot.dataset.iconSize || 'md' })
+  );
 }
 
 function run(text) {
@@ -59,24 +67,78 @@ function clearFragment() {
   history.replaceState(null, '', window.location.pathname + window.location.search);
 }
 
-/* The camera path. It fills the textarea itself so the transcription is
- * visible and correctable, then hands the text back here to go through
- * exactly the same analyse()/render() pair as typed text. */
+/* The camera path hands recognised text to the same analyse()/render()
+ * pair the Shortcut uses. */
 const capture = initCapture({
   cameraButton,
   libraryButton: document.querySelector('#capture-library'),
   cameraInput: document.querySelector('#capture-camera-input'),
   libraryInput: document.querySelector('#capture-library-input'),
   statusHost: document.querySelector('#capture-status'),
-  textarea: input,
   onText: run,
 });
 
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-  input.blur();
-  run(input.value);
+/* ---------------------------------------------------------------- foods
+ *
+ * One row per English food (language variants are folded in foods.js).
+ * Search matches any alias; the visible label stays English.
+ * ------------------------------------------------------------------- */
+
+const foodsSearch = document.querySelector('#foods-search');
+const foodsSearchWrap = foodsSearch.closest('.ds-search');
+const foodsSearchClear = document.querySelector('#foods-search-clear');
+const foodsList = document.querySelector('#foods-list');
+const foodsEmpty = document.querySelector('#foods-empty');
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function renderFoods(foods) {
+  const fragment = document.createDocumentFragment();
+  for (const food of foods) {
+    const tone = LEVEL_UI[food.level] || LEVEL_UI.green;
+    const row = el('li', 'ds-list-row foods-item');
+
+    const dot = el('span', `ds-dot ds-dot--lg ${tone.dot}`);
+    dot.setAttribute('aria-hidden', 'true');
+    row.appendChild(dot);
+
+    const text = el('span', 'ds-list-row__text');
+    const title = el('span', `ds-list-row__title ${tone.text}`, food.label);
+    text.appendChild(title);
+    if (food.reason) {
+      text.appendChild(el('span', 'ds-list-row__subtitle ds-truncate', food.reason));
+    }
+    row.appendChild(text);
+
+    const level = el('span', 'ds-visually-hidden', tone.name);
+    row.appendChild(level);
+
+    fragment.appendChild(row);
+  }
+
+  foodsList.replaceChildren(fragment);
+  foodsList.hidden = foods.length === 0;
+  foodsEmpty.hidden = foods.length !== 0;
+}
+
+function applyFoodsQuery() {
+  const query = foodsSearch.value;
+  foodsSearchWrap.classList.toggle('is-filled', query.length > 0);
+  renderFoods(filterFoods(FOODS, query));
+}
+
+foodsSearch.addEventListener('input', applyFoodsQuery);
+foodsSearchClear.addEventListener('click', () => {
+  foodsSearch.value = '';
+  applyFoodsQuery();
+  foodsSearch.focus();
 });
+renderFoods(FOODS);
 
 /* ---------------------------------------------------------------- results
  *
@@ -213,17 +275,11 @@ resultsSheet.addEventListener('pointercancel', endDrag);
 /* Re-analyse if the Shortcut fires again while the page is already open. */
 window.addEventListener('hashchange', () => {
   const text = readFragment();
-  if (text) {
-    input.value = text;
-    run(text);
-  }
+  if (text) run(text);
 });
 
 const initial = readFragment();
-if (initial) {
-  input.value = initial;
-  run(initial);
-}
+if (initial) run(initial);
 
 /* Offline support, so it still works in a shop with no signal.
  * Registered with a relative path because GitHub Pages serves this from a
@@ -232,7 +288,7 @@ if (initial) {
  * EXPECTED_CACHE must match CACHE_VERSION in sw.js. If an older worker
  * is still installed, drop it and reload so a cached index.html from
  * before the camera UI cannot hide the Scan button. */
-const EXPECTED_CACHE = 'fodmap-v7';
+const EXPECTED_CACHE = 'fodmap-v9';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

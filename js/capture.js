@@ -28,12 +28,9 @@
  * work out what to do about it on the sofa later.
  *
  * ---------------------------------------------------------------------
- * WHAT COMES BACK IS ALWAYS SHOWN
- * ---------------------------------------------------------------------
- * The OCR'd text goes into the textarea whether or not it is any good.
- * An opaque wrong answer is much worse than a visibly wrong transcription
- * she can correct and re-check: if OCR turns "oignon" into "oignen" she
- * can see that, fix the one letter, and press Check.
+ * The recognised text is handed to onText() and analysed the same way
+ * as a Shortcut fragment. Failures stay on the status panel so she can
+ * retake the photo.
  * ===================================================================== */
 
 import { icon } from './icons.js';
@@ -70,20 +67,17 @@ function looksLikeIngredientList(text) {
 }
 
 /* Three messages, because three different things go wrong and only one
- * of them is the photo's fault. Every one of them ends by pointing at
- * the textarea, which always works. */
+ * of them is the photo's fault. */
 const UNREADABLE_MESSAGE =
   'Couldn\u2019t read that photo \u2014 try again with more light, the label ' +
-  'flat, and the text filling the frame. You can also paste the ingredients.';
+  'flat, and the text filling the frame.';
 
 const MESSAGES = {
   [FAILED_DOWNLOAD]:
     'Couldn\u2019t download the text recogniser. It needs a connection the ' +
-    'first time only. Check your signal and try again \u2014 or paste the ' +
-    'ingredients.',
+    'first time only. Check your signal and try again.',
   [FAILED_TIMEOUT]:
-    'That is taking too long. Try again on a better connection, or paste the ' +
-    'ingredients.',
+    'That is taking too long. Try again on a better connection.',
 };
 
 function messageFor(error) {
@@ -164,7 +158,6 @@ export function initCapture({
   cameraInput,
   libraryInput,
   statusHost,
-  textarea,
   onText,
 }) {
   const status = buildStatus(statusHost);
@@ -213,10 +206,6 @@ export function initCapture({
       );
 
       const text = (await recognise(image, onProgress)).trim();
-
-      /* Always show what was read, even when it is rubbish — she can see
-       * the mistake and fix it. */
-      textarea.value = text;
 
       if (!looksLikeIngredientList(text)) {
         status.error(UNREADABLE_MESSAGE);
