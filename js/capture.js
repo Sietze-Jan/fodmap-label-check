@@ -74,17 +74,16 @@ function looksLikeIngredientList(text) {
  * the textarea, which always works. */
 const UNREADABLE_MESSAGE =
   'Couldn\u2019t read that photo \u2014 try again with more light, the label ' +
-  'flat, and the text filling the frame. You can also type or paste the ' +
-  'ingredients below.';
+  'flat, and the text filling the frame. You can also paste the ingredients.';
 
 const MESSAGES = {
   [FAILED_DOWNLOAD]:
     'Couldn\u2019t download the text recogniser. It needs a connection the ' +
-    'first time only. Check your signal and try again \u2014 or type the ' +
-    'ingredients below.',
+    'first time only. Check your signal and try again \u2014 or paste the ' +
+    'ingredients.',
   [FAILED_TIMEOUT]:
-    'That is taking too long. Try again on a better connection, or type the ' +
-    'ingredients below.',
+    'That is taking too long. Try again on a better connection, or paste the ' +
+    'ingredients.',
 };
 
 function messageFor(error) {
@@ -106,18 +105,18 @@ function el(tag, className, text) {
 }
 
 function buildStatus(host) {
-  const spinner = el('span', 'capture__spinner');
+  const spinner = el('span', 'capture-status__spinner');
   spinner.innerHTML = icon('spinner', { size: 'md', className: 'ds-icon--spin' });
 
-  const title = el('span', 'capture__title');
-  const head = el('div', 'capture__head');
+  const title = el('span', 'capture-status__title');
+  const head = el('div', 'capture-status__head');
   head.appendChild(spinner);
   head.appendChild(title);
 
-  const note = el('p', 'capture__note');
+  const note = el('p', 'capture-status__note');
 
-  const fill = el('div', 'capture__bar-fill');
-  const bar = el('div', 'capture__bar');
+  const fill = el('div', 'capture-status__bar-fill');
+  const bar = el('div', 'capture-status__bar');
   bar.appendChild(fill);
 
   host.appendChild(head);
@@ -128,7 +127,7 @@ function buildStatus(host) {
     /* A working state: spinner, a heading, an optional note, a bar. */
     busy(headline, noteText, fraction) {
       host.hidden = false;
-      host.classList.remove('capture__status--error');
+      host.classList.remove('capture-status--error');
       spinner.hidden = false;
       title.textContent = headline;
       note.textContent = noteText || '';
@@ -140,7 +139,7 @@ function buildStatus(host) {
     /* A failure: no spinner, no bar, and it stays on screen. */
     error(message) {
       host.hidden = false;
-      host.classList.add('capture__status--error');
+      host.classList.add('capture-status--error');
       spinner.hidden = true;
       title.textContent = message;
       note.textContent = '';
@@ -150,7 +149,7 @@ function buildStatus(host) {
 
     clear() {
       host.hidden = true;
-      host.classList.remove('capture__status--error');
+      host.classList.remove('capture-status--error');
       fill.style.width = '0%';
     },
   };
@@ -175,8 +174,8 @@ export function initCapture({
    * into index.html, which keeps every icon in the codebase defined in
    * exactly one place. Text labels are in the markup, so a failed module
    * load leaves readable buttons rather than blank ones. */
-  cameraButton.insertAdjacentHTML('afterbegin', icon('camera', { size: 'lg' }));
-  libraryButton.insertAdjacentHTML('afterbegin', icon('photo', { size: 'md' }));
+  cameraButton.insertAdjacentHTML('afterbegin', icon('scan', { size: 'lg' }));
+  libraryButton.insertAdjacentHTML('afterbegin', icon('photo', { size: 'lg' }));
 
   function setBusy(value) {
     busy = value;

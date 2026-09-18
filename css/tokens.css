@@ -30,8 +30,11 @@
   --color-brand-lime-button:  #92C323;  /* shutter / CTA circle */
   --color-brand-green-mid:    #8BC952;  /* score badge */
   --color-brand-green-soft:   #8CC570;  /* selected-card ring */
-  --color-brand-green-deep:   #265311;  /* icon strokes on light green */
+  --color-brand-green-deep:   #265311;  /* icon strokes on light green; INVERTS in dark */
   --color-brand-green-dark:   #587519;  /* gradient terminus */
+  /* Ink that sits ON a lime fill. Lime-button stays bright in both
+   * themes, so this must not invert with --color-brand-green-deep. */
+  --color-ink-on-lime:        #265311;
 
   /* Gradients are tokens too: a component that hand-rolls one has
    * smuggled in two colour literals. */
@@ -295,6 +298,7 @@
     --color-brand-green-soft:   #7FB765;
     --color-brand-green-deep:   #CDE8A3;  /* inverted: strokes now sit on dark */
     --color-brand-green-dark:   #425713;
+    --color-ink-on-lime:        #265311;  /* lime fill stays bright — ink stays dark */
 
     --gradient-hero: linear-gradient(180deg, #6D8F1A 0%, #425713 100%);
     --gradient-chat: linear-gradient(120deg, #2A2C1F 0%, #1E2A20 100%);
