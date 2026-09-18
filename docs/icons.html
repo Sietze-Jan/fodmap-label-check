@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Icon set — FODMAP Label Check</title>
+<link rel="stylesheet" href="../css/icons.css">
+<style>
+  /* This page is a specimen sheet, not part of the app, so it carries its
+     own styling rather than pulling in css/styles.css. */
+  :root {
+    color-scheme: dark;
+    --page: #14161a;
+    --ink: #eef1f5;
+    --muted: #8b949e;
+    --line: #262a31;
+    --panel: #1b1e24;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 2rem 1.25rem 5rem;
+    background: var(--page);
+    color: var(--ink);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  h1 { font-size: 1.6rem; margin: 0 0 .35rem; letter-spacing: -.01em; }
+  .lede { color: var(--muted); margin: 0 0 1.5rem; max-width: 62ch; }
+
+  h2 {
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: var(--muted);
+    margin: 2.75rem 0 .9rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  h2 .count { text-transform: none; letter-spacing: 0; opacity: .6; }
+
+  pre.snippet {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: .9rem 1rem;
+    overflow-x: auto;
+    font-size: .8125rem;
+    color: #cfd6de;
+  }
+
+  /* ---- the grid ---- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+    gap: .5rem;
+  }
+
+  .cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .55rem;
+    padding: .9rem .4rem .7rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    cursor: pointer;
+    text-align: center;
+    font: inherit;
+    color: inherit;
+  }
+  .cell:hover { border-color: #3d4450; }
+  .cell.copied { border-color: #4ea36a; }
+
+  /* Three sizes side by side, so an off-weight icon gives itself away. */
+  .cell__row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: .55rem;
+    min-height: 30px;
+  }
+
+  .cell__name {
+    font-size: .7rem;
+    color: var(--muted);
+    word-break: break-word;
+    line-height: 1.3;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .cell.copied .cell__name { color: #6fca8c; }
+
+  /* ---- light / dark proof ---- */
+  .contrast {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  @media (max-width: 720px) { .contrast { grid-template-columns: 1fr; } }
+
+  .swatch {
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .85rem;
+    align-items: center;
+  }
+  .swatch--dark { background: #0b0d10; color: #f2f5f8; }
+  .swatch--light { background: #f7f8fa; color: #16181d; border-color: #d8dce2; }
+  .swatch .ds-icon { width: 26px; height: 26px; }
+
+  /* ---- the stroke-weight ramp ---- */
+  .ramp {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.1rem;
+  }
+  .ramp span { display: block; text-align: center; font-size: .7rem; color: var(--muted); margin-top: .5rem; }
+  .ramp .ds-icon--px48 { width: 48px; height: 48px; }
+  .ramp .ds-icon--px64 { width: 64px; height: 64px; }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 1.5rem;
+    transform: translateX(-50%) translateY(150%);
+    background: #eef1f5;
+    color: #14161a;
+    padding: .55rem 1rem;
+    border-radius: 999px;
+    font-size: .85rem;
+    font-weight: 600;
+    transition: transform .18s ease;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Icon set</h1>
+  <p class="lede">
+    Hand-authored on a 24&times;24 grid, stroked in <code>currentColor</code> at 1.75,
+    with round caps and joins. Click any icon to copy its name.
+  </p>
+
+  <h2>How to use one</h2>
+  <pre class="snippet">import { icon, iconElement } from './icons.js';
+
+container.insertAdjacentHTML('beforeend', icon('leaf'));        // markup string
+card.appendChild(iconElement('warning-triangle', { size: 'lg' })); // DOM node
+button.appendChild(iconElement('camera', { label: 'Take a photo' })); // labelled</pre>
+
+  <h2>Same icon, any colour and background</h2>
+  <div class="contrast">
+    <div class="swatch swatch--dark" id="proof-dark"></div>
+    <div class="swatch swatch--light" id="proof-light"></div>
+  </div>
+
+  <h2>Optical weight at size</h2>
+  <div class="ramp" id="ramp"></div>
+
+  <div id="sections"></div>
+
+  <h2>Aliases</h2>
+  <pre class="snippet" id="aliases"></pre>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { icon, ICON_NAMES, ICON_ALIASES } from '../js/icons.js';
+
+/* Grouped the way a developer looks for them, not alphabetically. Any
+   icon missing from a group still shows up, under "Everything else". */
+const GROUPS = [
+  ['Navigation & chrome', [
+    'chevron-left', 'chevron-right', 'chevron-up', 'chevron-down', 'close', 'plus', 'minus',
+    'ellipsis', 'ellipsis-circle', 'back-arrow', 'share', 'bookmark', 'bookmark-filled',
+    'search', 'filter', 'sort', 'settings', 'info-circle', 'question-circle', 'external-link',
+  ]],
+  ['Tab bar', [
+    'home', 'home-filled', 'scan', 'scan-filled', 'history', 'history-filled',
+    'list', 'list-filled', 'person', 'person-filled', 'heart', 'heart-filled', 'star', 'star-filled',
+  ]],
+  ['Status & feedback', [
+    'check', 'check-circle', 'check-circle-filled', 'warning-triangle', 'warning-triangle-filled',
+    'error-circle', 'error-circle-filled', 'x-circle', 'spinner', 'lock', 'eye', 'eye-off',
+    'bell', 'bell-badge',
+  ]],
+  ['Camera & capture', [
+    'camera', 'camera-flip', 'photo', 'flash-on', 'flash-off', 'viewfinder', 'document-text',
+    'text-recognition', 'qr-code', 'barcode', 'crop', 'retake',
+  ]],
+  ['Chat & input', [
+    'microphone', 'paperclip', 'send', 'sparkles', 'message-bubble', 'keyboard',
+  ]],
+  ['Food & diet', [
+    'leaf', 'wheat', 'wheat-crossed-out', 'milk-carton', 'milk-crossed-out', 'onion', 'garlic',
+    'apple', 'grain', 'sugar-cube', 'cheese', 'honey', 'bread', 'avocado', 'shopping-cart',
+    'shopping-basket', 'nutrition-label', 'traffic-light', 'gut', 'pill',
+  ]],
+  ['Data & misc', [
+    'chart-bar', 'chart-arc', 'trending-up', 'calendar', 'trash', 'edit', 'copy',
+    'download', 'upload', 'refresh', 'globe', 'moon', 'sun', 'sliders',
+  ]],
+];
+
+const grouped = new Set(GROUPS.flatMap(([, names]) => names));
+const leftovers = ICON_NAMES.filter((name) => !grouped.has(name));
+if (leftovers.length) GROUPS.push(['Everything else', leftovers]);
+
+/* Every icon, three sizes, name underneath. */
+function cell(name) {
+  const spin = name === 'spinner' ? ' ds-icon--spin' : '';
+  return (
+    `<button class="cell" type="button" data-name="${name}">` +
+    `<span class="cell__row">` +
+    icon(name, { size: 'sm', className: spin.trim() }) +
+    icon(name, { size: 'md', className: spin.trim() }) +
+    icon(name, { size: 'xl', className: spin.trim() }) +
+    `</span>` +
+    `<span class="cell__name">${name}</span>` +
+    `</button>`
+  );
+}
+
+document.getElementById('sections').innerHTML = GROUPS.map(
+  ([title, names]) =>
+    `<h2>${title} <span class="count">(${names.length})</span></h2>` +
+    `<div class="grid">${names.map(cell).join('')}</div>`
+).join('');
+
+/* Light / dark proof, using a spread that covers strokes, fills and masks. */
+const PROOF = [
+  'traffic-light', 'leaf', 'wheat-crossed-out', 'check-circle-filled', 'warning-triangle-filled',
+  'camera', 'scan-filled', 'heart-filled', 'bell-badge', 'sparkles', 'settings', 'star-filled',
+  'nutrition-label', 'shopping-cart', 'moon', 'sun',
+];
+const proof = PROOF.map((n) => icon(n)).join('');
+document.getElementById('proof-dark').innerHTML = proof;
+document.getElementById('proof-light').innerHTML = proof;
+
+/* Blown up, where any wobbly curve becomes obvious. */
+document.getElementById('ramp').innerHTML = [
+  ['traffic-light', 64, 1.75],
+  ['settings', 64, 1.5],
+  ['leaf', 48, 1.75],
+  ['camera', 48, 1.75],
+  ['onion', 48, 1.75],
+  ['gut', 48, 1.75],
+  ['sparkles', 48, 1.75],
+  ['spinner', 48, 1.75],
+]
+  .map(([name, px, sw]) => {
+    const cls = `ds-icon--px${px}${name === 'spinner' ? ' ds-icon--spin' : ''}`;
+    return `<div>${icon(name, { className: cls, strokeWidth: sw })}<span>${name} · ${px}px · ${sw}</span></div>`;
+  })
+  .join('');
+
+document.getElementById('aliases').textContent = Object.entries(ICON_ALIASES)
+  .map(([from, to]) => `${from.padEnd(16)} -> ${to}`)
+  .join('\n');
+
+/* Click to copy. */
+const toast = document.getElementById('toast');
+let timer;
+document.addEventListener('click', (event) => {
+  const button = event.target.closest('.cell');
+  if (!button) return;
+  const name = button.dataset.name;
+  navigator.clipboard?.writeText(name).catch(() => {});
+  button.classList.add('copied');
+  toast.textContent = `Copied "${name}"`;
+  toast.classList.add('show');
+  clearTimeout(timer);
+  timer = setTimeout(() => {
+    toast.classList.remove('show');
+    button.classList.remove('copied');
+  }, 1100);
+});
+
+console.log(`icons: rendered ${ICON_NAMES.length} icons`);
+</script>
+</body>
+</html>
