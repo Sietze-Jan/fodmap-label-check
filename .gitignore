@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Node — there are no runtime dependencies, but keep these ignored in case
+# a tool is ever added for local development only.
+node_modules/
+npm-debug.log*
+.npm/
+
+# Local scratch
+*.local
+tmp/

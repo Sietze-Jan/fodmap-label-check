@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FODMAP Label Check</title>
+  <meta name="description" content="Point-and-scan FODMAP traffic light for Swiss food labels.">
+  <meta name="theme-color" content="#14161a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FODMAP">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <main class="app">
+
+    <header class="header">
+      <h1 class="header__title">FODMAP Label Check</h1>
+      <p class="header__sub">Reads French, German, Italian and English ingredient lists.</p>
+    </header>
+
+    <form id="scan-form" class="scanner">
+      <label class="scanner__label" for="label-text">Ingredient list</label>
+      <textarea
+        id="label-text"
+        class="scanner__input"
+        rows="5"
+        placeholder="Tap here, then long-press and choose Scan Text to read the label with the camera — or paste the ingredients."
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"></textarea>
+      <div class="scanner__actions">
+        <button type="submit" class="button button--primary">Check</button>
+        <button type="button" id="clear" class="button button--ghost">Clear</button>
+      </div>
+    </form>
+
+    <div id="results" class="results" hidden></div>
+
+    <details class="help">
+      <summary class="help__summary">How to use this</summary>
+      <div class="help__body">
+        <p><strong>Fastest way:</strong> use the “FODMAP” Shortcut. Tap it (or your
+          Action Button), photograph the ingredient list, and the result opens here
+          automatically.</p>
+        <p><strong>Without the Shortcut:</strong> tap the box above, long-press, and
+          choose <em>Scan Text</em> to read the label with the camera.</p>
+        <p>Photograph the ingredient list on the <em>back</em> of the pack, not the
+          front. Get close, keep the label flat, and use good light.</p>
+      </div>
+    </details>
+
+    <footer class="disclaimer">
+      <p><strong>This is a shopping aid, not medical advice.</strong> Only the
+        Monash FODMAP app has lab-tested serving sizes; everything here is an
+        estimate from reading ingredient names. Amber always means “check the
+        portion in Monash”. Recipes change, so scan the label each time.</p>
+    </footer>
+
+  </main>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

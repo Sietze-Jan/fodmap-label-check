@@ -1,0 +1,320 @@
+/* =====================================================================
+ * styles.css — mobile first, dark, high contrast.
+ *
+ * Designed to be read at arm's length in a supermarket aisle: large type,
+ * big touch targets, and verdict colours that survive glare. Colours are
+ * defined once as custom properties below.
+ * ===================================================================== */
+
+:root {
+  --bg:            #14161a;
+  --surface:       #1e2128;
+  --surface-raised:#262a33;
+  --text:          #f2f4f7;
+  --text-dim:      #a8b0bd;
+  --border:        #343a45;
+
+  --red:           #e5484d;
+  --red-bg:        #2a1416;
+  --yellow:        #ffb224;
+  --yellow-bg:     #2a2010;
+  --green:         #30a46c;
+  --green-bg:      #10231a;
+  --unknown:       #8b95a5;
+  --unknown-bg:    #20242b;
+
+  --radius:        14px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) 16px
+           max(24px, env(safe-area-inset-bottom)) 16px;
+}
+
+/* ---------------------------------------------------------------- header */
+
+.header { margin: 8px 0 20px; }
+
+.header__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.header__sub {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+/* --------------------------------------------------------------- scanner */
+
+.scanner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.scanner__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.scanner__input {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;        /* 16px minimum stops iOS zooming on focus */
+  line-height: 1.45;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.scanner__input:focus {
+  outline: 2px solid #5b8def;
+  outline-offset: 1px;
+}
+
+.scanner__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.button {
+  flex: 1;
+  min-height: 52px;       /* comfortable one-handed target */
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.button--primary { background: #5b8def; color: #fff; }
+.button--primary:active { background: #4a76cc; }
+
+.button--ghost {
+  flex: 0 0 96px;
+  background: transparent;
+  color: var(--text-dim);
+  border-color: var(--border);
+}
+
+/* --------------------------------------------------------------- results */
+
+.results { margin-top: 20px; }
+
+.verdict {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: var(--radius);
+  border: 1px solid;
+  margin-bottom: 16px;
+}
+
+.verdict__icon {
+  font-size: 2.4rem;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.verdict__body { min-width: 0; }
+
+.verdict__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.verdict__subtitle {
+  margin: 4px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+.verdict--red     { background: var(--red-bg);     border-color: var(--red); }
+.verdict--red     .verdict__icon { color: var(--red); }
+.verdict--yellow  { background: var(--yellow-bg);  border-color: var(--yellow); }
+.verdict--yellow  .verdict__icon { color: var(--yellow); }
+.verdict--green   { background: var(--green-bg);   border-color: var(--green); }
+.verdict--green   .verdict__icon { color: var(--green); }
+.verdict--unknown { background: var(--unknown-bg); border-color: var(--unknown); }
+.verdict--unknown .verdict__icon { color: var(--unknown); font-weight: 700; }
+
+/* The Monash prompt for amber verdicts. */
+.monash {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: var(--surface-raised);
+  border-left: 4px solid var(--yellow);
+  border-radius: 8px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------- buckets */
+
+.bucket {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.bucket__heading {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.bucket--red    .bucket__heading { color: var(--red); }
+.bucket--yellow .bucket__heading { color: var(--yellow); }
+.bucket--green  .bucket__heading { color: var(--green); }
+.bucket--unknown .bucket__heading { color: var(--unknown); }
+
+.bucket__note {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+.bucket__list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.bucket__inline {
+  margin: 10px 0 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.ingredient {
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+.ingredient:first-child { border-top: none; padding-top: 4px; }
+
+.ingredient__name {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.ingredient__reason {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+.ingredient__tag {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.footnote {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+/* ------------------------------------------------------ help + disclaimer */
+
+.help {
+  margin-top: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 14px;
+}
+
+.help__summary {
+  padding: 12px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.help__body p {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.disclaimer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.disclaimer p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* Respect the system light theme, but keep the verdict colours strong. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-raised: #eef0f4;
+    --text: #14161a;
+    --text-dim: #5b6472;
+    --border: #d7dbe2;
+    --red-bg: #fdeced;
+    --yellow-bg: #fff6e5;
+    --green-bg: #e8f6ee;
+    --unknown-bg: #eef0f4;
+  }
+}

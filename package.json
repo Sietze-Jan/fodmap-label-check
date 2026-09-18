@@ -1,0 +1,10 @@
+{
+  "name": "fodmap-label-scanner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Point-and-scan FODMAP traffic light for Swiss food labels (FR/DE/IT).",
+  "type": "module",
+  "scripts": {
+    "test": "node test/test.js"
+  }
+}
