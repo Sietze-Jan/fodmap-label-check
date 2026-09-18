@@ -18,12 +18,13 @@
  *    unprefixed. This layer can never collide with it, which is what
  *    makes it safe to build alongside a running app.
  *
- * 3. NO SHADOWS BY DEFAULT. --elevation-0 is `none` and that is what
- *    everything gets. Separation is surface contrast; the "featured"
- *    treatment is a 3px green ring. The two places a shadow appears
- *    below — the sheet and the modal — are the two cases the references
- *    never had (something genuinely floating over content), and each
- *    says so at the call site.
+ * 3. NO SHADOWS BY DEFAULT ON SURFACES. --elevation-0 is `none` and
+ *    that is what cards and most controls get. Separation is surface
+ *    contrast; the "featured" treatment is a 3px green ring. Filled
+ *    buttons are the exception: --primary and --secondary take a soft
+ *    grey elevation, --lime a green-tinted one, so a floating control
+ *    reads as sitting above the page. Sheets and modals still use
+ *    --elevation-2.
  *
  * 4. PILLS, NOT ROUNDED RECTS. Buttons, chips, badges, progress bars and
  *    the segmented control are full stadiums via --radius-control /
@@ -454,23 +455,33 @@
 /* -- variants ------------------------------------------------------- */
 
 /* Primary: the blue-tinted slate from ref 1, NOT black. The tint is what
- * makes it read as an object on cream rather than as a hole in it. */
+ * makes it read as an object on cream rather than as a hole in it.
+ * Soft grey elevation — black/slate fill, grey shadow. */
 .ds-button--primary {
   background: var(--color-ink-button);
   color: var(--color-text-on-dark);
+  box-shadow: var(--elevation-button);
 }
 .ds-button--primary:hover { background: color-mix(in srgb, var(--color-ink-button) 88%, var(--color-text-on-dark)); }
 .ds-button--primary:active { background: color-mix(in srgb, var(--color-ink-button) 78%, var(--color-text-on-dark)); }
+.ds-button--primary:focus-visible {
+  box-shadow: var(--elevation-button), var(--elevation-focus);
+}
 
-/* Secondary: outlined. Carries the hairline, one of its few real uses —
- * a button needs an edge to be a button. */
+/* Secondary: white card fill. Soft grey elevation — white fill, grey
+ * shadow. The hairline stays: a button still needs an edge when it is
+ * not floating. */
 .ds-button--secondary {
   background: var(--color-surface-card);
   color: var(--color-text-primary);
   border-color: var(--color-border-hairline);
+  box-shadow: var(--elevation-button);
 }
 .ds-button--secondary:hover { background: var(--color-surface-cream-alt); }
 .ds-button--secondary:active { background: var(--color-surface-chip); }
+.ds-button--secondary:focus-visible {
+  box-shadow: var(--elevation-button), var(--elevation-focus);
+}
 
 /* Tonal: the brand green, filled. Deep green ink on a light green fill
  * is exactly how the reference draws its icon strokes. */
@@ -481,13 +492,18 @@
 .ds-button--tonal:hover { background: color-mix(in srgb, var(--color-surface-chip) 84%, var(--color-brand-green-mid)); }
 .ds-button--tonal:active { background: color-mix(in srgb, var(--color-surface-chip) 70%, var(--color-brand-green-mid)); }
 
-/* Lime: the shutter/CTA fill, for the one loud action on a screen. */
+/* Lime: the shutter/CTA fill, for the one loud action on a screen.
+ * Soft green elevation — lime fill, green-tinted shadow, never grey. */
 .ds-button--lime {
   background: var(--color-brand-lime-button);
   color: var(--color-ink-on-lime);
+  box-shadow: var(--elevation-button-green);
 }
 .ds-button--lime:hover { background: color-mix(in srgb, var(--color-brand-lime-button) 88%, var(--color-text-primary)); }
 .ds-button--lime:active { background: var(--color-brand-green-dark); color: var(--color-text-on-dark); }
+.ds-button--lime:focus-visible {
+  box-shadow: var(--elevation-button-green), var(--elevation-focus);
+}
 
 /* Ghost: no fill, no edge, still a 44px target. */
 .ds-button--ghost {

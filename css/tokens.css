@@ -258,11 +258,18 @@
    * exception and needs a reason. Reach for --elevation-1 only where
    * white genuinely sits on white, and --elevation-2 only for something
    * floating over content (a modal or a sheet).
+   *
+   * Filled buttons are the other exception: a soft elevation (low
+   * opacity, large blur, small y-offset) whose colour follows the fill.
+   * White and black/slate fills take a grey shadow; lime/green fills
+   * take a green-tinted one. Never a hard drop.
    * =================================================================== */
   --elevation-0:     none;
   --elevation-1:     0 1px 3px rgba(35, 40, 48, 0.05);
   --elevation-2:     0 4px 16px rgba(35, 40, 48, 0.08);
   --elevation-focus: 0 0 0 3px var(--color-brand-green-soft);  /* the refs' actual "elevated" */
+  --elevation-button: 0 6px 28px color-mix(in srgb, var(--color-ink-button) 18%, transparent);
+  --elevation-button-green: 0 6px 28px color-mix(in srgb, var(--color-brand-lime-button) 42%, transparent);
 
   /* ===================================================================
    * BORDERS
@@ -352,9 +359,13 @@
     --color-scanner-bracket: #B0D05E;
 
     /* Shadows have to be black rather than slate to register at all on a
-     * dark page. --elevation-0 is still the default. */
+     * dark page. --elevation-0 is still the default. The lime button
+     * shadow stays green-tinted — just a little denser so it still
+     * reads against the dark page. */
     --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.40);
     --elevation-2: 0 4px 16px rgba(0, 0, 0, 0.50);
+    --elevation-button: 0 6px 28px rgba(0, 0, 0, 0.50);
+    --elevation-button-green: 0 6px 28px color-mix(in srgb, var(--color-brand-lime-button) 48%, transparent);
 
     --color-border-selected: #7FB765;
     --color-border-hairline: rgba(255, 255, 255, 0.10);

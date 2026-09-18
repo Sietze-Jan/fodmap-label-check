@@ -1,0 +1,2716 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design system — FODMAP Label Check</title>
+
+<!-- Serve from the repo root (`python3 -m http.server 8000`) and open
+     http://localhost:8000/docs/design-system.html
+     file:// cannot load the ES modules / fetch() that build the specimens. -->
+
+<!-- The three real stylesheets, in the order the app loads them. Nothing
+     on this page restyles a component: if something looks wrong here, it
+     is wrong in components.css. -->
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/icons.css">
+<link rel="stylesheet" href="../css/components.css">
+
+<style>
+  /* =================================================================
+   * Page chrome only. Every selector is `docs-` prefixed so it can
+   * never touch a `ds-` component, and it is built out of the same
+   * tokens so the specimen sheet is itself a test of the token set.
+   * ================================================================= */
+
+  * { box-sizing: border-box; }
+
+  html { scroll-padding-top: 4.75rem; }
+
+  body {
+    margin: 0;
+    background: var(--color-surface-page-default);
+    color: var(--color-text-primary);
+    font-family: var(--type-font-family);
+    font-size: var(--type-body-size);
+    line-height: var(--type-body-line);
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---- shell ---- */
+  .docs-shell {
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    gap: var(--space-8);
+    max-width: 1440px;
+    margin-inline: auto;
+    padding: 0 var(--space-6) var(--space-12);
+  }
+
+  .docs-sidebar {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+    padding: var(--space-6) 0;
+  }
+
+  .docs-sidebar__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    font-size: var(--type-headline-size);
+    font-weight: var(--type-headline-weight);
+  }
+
+  .docs-nav { display: flex; flex-direction: column; gap: 2px; }
+
+  .docs-nav__group {
+    margin-top: var(--space-4);
+    padding: 0 var(--space-3);
+    font-size: var(--type-caption2-size);
+    font-weight: var(--type-caption2-weight);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--color-text-tertiary);
+  }
+
+  .docs-nav__link {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: var(--type-subhead-size);
+  }
+  .docs-nav__link:hover { background: var(--color-surface-cream-alt); color: var(--color-text-primary); }
+  .docs-nav__link.is-active { background: var(--color-surface-chip); color: var(--color-brand-green-deep); font-weight: var(--type-subhead-weight-strong); }
+
+  /* ---- top bar ---- */
+  .docs-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-6);
+    margin-bottom: var(--space-6);
+    background: var(--color-surface-page-default);
+    border-bottom: var(--border-hairline);
+  }
+
+  .docs-topbar__title { font-weight: var(--type-weight-semibold); }
+  .docs-topbar__spacer { flex: 1 1 auto; }
+
+  .docs-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1);
+    background: var(--color-semantic-track);
+    border-radius: var(--radius-pill);
+  }
+
+  .docs-theme-toggle__button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: calc(var(--control-height-min) - var(--space-3));
+    padding: var(--space-1) var(--space-3);
+    border: none;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: var(--type-footnote-size);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .docs-theme-toggle__button.is-active {
+    background: var(--color-surface-card);
+    color: var(--color-text-primary);
+    font-weight: var(--type-weight-semibold);
+  }
+
+  /* ---- headings ---- */
+  .docs-hero { padding: var(--space-8) 0 var(--space-6); scroll-margin-top: 4.75rem; }
+  .docs-hero h1 { margin: 0 0 var(--space-2); font-size: var(--type-large-title-size); line-height: var(--type-large-title-line); letter-spacing: -.015em; }
+  .docs-hero p { margin: 0; max-width: 62ch; color: var(--color-text-secondary); }
+
+  .docs-principles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .docs-principle {
+    padding: var(--space-4);
+    background: var(--color-surface-card);
+    border-radius: var(--radius-card);
+    border-left: var(--space-1) solid var(--color-brand-green-mid);
+  }
+  .docs-principle strong { display: block; margin-bottom: var(--space-1); font-size: var(--type-subhead-size); }
+  .docs-principle span { font-size: var(--type-footnote-size); color: var(--color-text-secondary); }
+
+  .docs-section { padding-top: var(--space-10); scroll-margin-top: 4.75rem; }
+  .docs-section__title {
+    margin: 0 0 var(--space-1);
+    font-size: var(--type-title1-size);
+    line-height: var(--type-title1-line);
+    letter-spacing: -.01em;
+  }
+  .docs-section__blurb { margin: 0 0 var(--space-6); max-width: 70ch; color: var(--color-text-secondary); font-size: var(--type-subhead-size); }
+
+  /* ---- one specimen ---- */
+  .docs-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+    padding: var(--space-5) 0;
+    border-top: var(--border-hairline);
+  }
+
+  .docs-item__head { grid-column: 1 / -1; display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap; }
+
+  .docs-item__name {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: var(--type-footnote-size);
+    color: var(--color-brand-green-deep);
+    background: var(--color-surface-chip);
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-xs);
+    overflow-wrap: anywhere;
+  }
+
+  .docs-item__note { margin: 0; font-size: var(--type-footnote-size); color: var(--color-text-secondary); }
+
+  .docs-item__demo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-5);
+    background: var(--color-surface-cream-alt);
+    border-radius: var(--radius-card);
+  }
+
+  .docs-item__demo--block > * { width: 100%; }
+  .docs-item__demo--column { flex-direction: column; align-items: stretch; }
+  .docs-item__demo--card { background: var(--color-surface-card); }
+  .docs-item__demo--olive { background: var(--color-surface-canvas-olive); }
+  .docs-item__demo--dark { background: var(--color-ink-chip); }
+  .docs-item__demo--center { justify-content: center; }
+  .docs-item__demo--relative { position: relative; overflow: hidden; min-height: 260px; }
+
+  .docs-item__code {
+    margin: 0;
+    padding: var(--space-4);
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-wrap: anywhere;
+    background: var(--color-ink-chip);
+    color: var(--color-text-on-dark);
+    border-radius: var(--radius-card);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: var(--type-caption1-size);
+    line-height: 1.55;
+    tab-size: 2;
+  }
+  /* pre-wrap rather than pre: at two columns a markup snippet is wider
+     than its half of the page, and a reader who has to scroll a code
+     block sideways just does not read it. */
+  .docs-item__code code { white-space: pre-wrap; word-break: break-word; }
+
+  /* ---- label under a variant ---- */
+  .docs-specimen { display: inline-flex; flex-direction: column; gap: var(--space-2); align-items: flex-start; }
+  .docs-specimen__label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: var(--type-caption2-size);
+    color: var(--color-text-tertiary);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* ---- token reference ---- */
+  .docs-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--space-3); }
+  .docs-swatch { display: flex; flex-direction: column; gap: var(--space-1); }
+  .docs-swatch__chip {
+    height: var(--space-12);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-hairline);
+  }
+  .docs-swatch__name {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: var(--type-caption2-size);
+    color: var(--color-text-primary);
+    letter-spacing: 0;
+    text-transform: none;
+    word-break: break-all;
+  }
+  .docs-swatch__value { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--type-caption2-size); color: var(--color-text-tertiary); letter-spacing: 0; text-transform: none; }
+
+  .docs-type-row { display: flex; align-items: baseline; gap: var(--space-4); padding: var(--space-3) 0; border-top: var(--border-hairline); }
+  .docs-type-row__meta { flex: 0 0 180px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--type-caption2-size); color: var(--color-text-tertiary); letter-spacing: 0; text-transform: none; }
+  .docs-type-row__sample { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .docs-scale-row { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-2) 0; }
+  .docs-scale-row__meta { flex: 0 0 150px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--type-caption2-size); color: var(--color-text-tertiary); letter-spacing: 0; text-transform: none; }
+  .docs-scale-row__bar { height: var(--space-5); background: var(--color-brand-green-mid); border-radius: var(--radius-xs); }
+  .docs-scale-row__box { height: var(--space-12); width: calc(var(--space-12) * 1.6); background: var(--color-surface-card); border: 1px solid var(--color-border-hairline); }
+  .docs-scale-row__elev { height: var(--space-12); width: calc(var(--space-12) * 1.6); background: var(--color-surface-card); border-radius: var(--radius-card); }
+
+  /* ---- focus-ring demo, the one state CSS cannot fake ---- */
+  .docs-force-focus { box-shadow: var(--elevation-focus) !important; }
+
+  .docs-callout {
+    display: block;
+    padding: var(--space-4);
+    background: var(--color-semantic-blue-bg);
+    border-radius: var(--radius-card);
+    font-size: var(--type-subhead-size);
+    margin-bottom: var(--space-4);
+    max-width: 78ch;
+    line-height: var(--type-subhead-line);
+  }
+  .docs-callout code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .95em; }
+  .docs-callout a { color: var(--color-brand-green-deep); }
+
+  .docs-banner {
+    display: none;
+    margin: 0 var(--space-6) var(--space-4);
+    padding: var(--space-4);
+    background: var(--color-semantic-amber-bg);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-card);
+    border-left: var(--space-1) solid var(--color-semantic-amber);
+    font-size: var(--type-subhead-size);
+  }
+  .docs-banner.is-visible,
+  html.docs-needs-server .docs-banner { display: block; }
+  .docs-banner code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .95em; }
+  .docs-banner pre {
+    margin: var(--space-3) 0 0;
+    padding: var(--space-3);
+    background: var(--color-ink-chip);
+    color: var(--color-text-on-dark);
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+  }
+
+  .docs-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: var(--space-2);
+    margin: 0 0 var(--space-6);
+  }
+  .docs-icon-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-2);
+    background: var(--color-surface-card);
+    border-radius: var(--radius-card);
+    color: var(--color-text-primary);
+    text-align: center;
+  }
+  .docs-icon-cell .ds-icon { width: 24px; height: 24px; }
+  .docs-icon-cell__name {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: var(--type-caption2-size);
+    color: var(--color-text-secondary);
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 900px) {
+    .docs-banner { margin-inline: var(--space-4); }
+  }
+
+  .docs-phones { display: flex; gap: var(--space-6); flex-wrap: wrap; }
+
+  /* ---- responsive ---- */
+  @media (max-width: 1080px) {
+    .docs-item { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  @media (max-width: 900px) {
+    .docs-shell { grid-template-columns: minmax(0, 1fr); gap: 0; padding-inline: var(--space-4); }
+    .docs-sidebar {
+      position: static;
+      max-height: none;
+      padding: var(--space-3) 0;
+      border-bottom: var(--border-hairline);
+    }
+    .docs-nav { flex-direction: row; overflow-x: auto; gap: var(--space-1); padding-bottom: var(--space-2); }
+    .docs-nav__group { display: none; }
+    .docs-nav__link { white-space: nowrap; background: var(--color-surface-card); }
+    .docs-topbar { padding-inline: var(--space-4); }
+    .docs-topbar__spacer { display: none; }
+    .docs-topbar__title {
+      flex: 1 1 8rem;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .docs-theme-toggle { flex: 0 0 auto; }
+    .docs-theme-toggle__button { padding-inline: var(--space-2); }
+  }
+</style>
+</head>
+<body class="ds-root">
+
+<noscript>
+  <div class="docs-banner is-visible">
+    This overview is built by JavaScript. Enable it, then serve the repo root with
+    <code>python3 -m http.server 8000</code> and open
+    <code>http://localhost:8000/docs/design-system.html</code>.
+  </div>
+</noscript>
+
+<div class="docs-banner" id="docs-banner" role="alert">
+  <strong>The specimens did not load.</strong>
+  <span data-reason>
+    This page uses ES modules and <code>fetch()</code>, which browsers block on
+    <code>file://</code>. Serve the repo from its root and open the HTTP URL.
+  </span>
+  <pre>python3 -m http.server 8000
+# then open http://localhost:8000/docs/design-system.html</pre>
+</div>
+
+<script>
+(function () {
+  var banner = document.getElementById('docs-banner');
+  var reason = banner && banner.querySelector('[data-reason]');
+  function show(message) {
+    document.documentElement.classList.add('docs-needs-server');
+    if (banner) banner.classList.add('is-visible');
+    if (reason && message) reason.textContent = message;
+  }
+  if (location.protocol === 'file:') {
+    show('This file was opened as file://. Chrome and Safari will not load the ES modules or fetch css/tokens.css from the filesystem, so the sidebar and every specimen stay empty.');
+  }
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (!document.querySelector('#sections .docs-section')) {
+        show('The specimen script did not run. From the repo root run python3 -m http.server 8000 and open http://localhost:8000/docs/design-system.html');
+      }
+    }, 1500);
+  });
+})();
+</script>
+
+<div class="docs-topbar">
+  <span class="docs-topbar__title">FODMAP design system</span>
+  <span class="docs-topbar__spacer"></span>
+  <div class="docs-theme-toggle" id="theme-toggle" role="group" aria-label="Colour scheme">
+    <button class="docs-theme-toggle__button" type="button" data-theme-value="light">Light</button>
+    <button class="docs-theme-toggle__button" type="button" data-theme-value="dark">Dark</button>
+    <button class="docs-theme-toggle__button" type="button" data-theme-value="system">System</button>
+  </div>
+</div>
+
+<div class="docs-shell">
+
+  <aside class="docs-sidebar">
+    <div class="docs-sidebar__brand" id="brand"></div>
+    <nav class="docs-nav" id="nav"></nav>
+  </aside>
+
+  <main id="main">
+    <header class="docs-hero">
+      <h1>Component library</h1>
+      <p>
+        Every component in the system, in every state, built out of
+        <code>css/tokens.css</code> and nothing else. The snippet beside each
+        example is the exact string that rendered it, so the two cannot drift.
+      </p>
+      <div class="docs-callout">
+        Open this page over HTTP from the repo root —
+        <code>python3 -m http.server 8000</code> then
+        <a href="http://localhost:8000/docs/design-system.html"><code>http://localhost:8000/docs/design-system.html</code></a>.
+        Opening the file itself (<code>file://</code>) cannot load the modules that inject gauges, icons and every specimen below.
+      </div>
+
+      <div class="docs-principles">
+        <div class="docs-principle"><strong>Light first</strong><span>All three references are light. Dark mode is designed, not sampled, and arrives for free through the tokens.</span></div>
+        <div class="docs-principle"><strong>No shadows by default</strong><span><code>--elevation-0: none</code> on surfaces. Filled buttons get a soft elevation tinted by their fill: grey under white or black, green under lime.</span></div>
+        <div class="docs-principle"><strong>Pills, not rounded rects</strong><span>Buttons, chips, badges and bars are true stadiums. Cards are the only things with a corner radius.</span></div>
+        <div class="docs-principle"><strong>One neutral text ramp</strong><span>Black / #666 / #8E8F91 on every surface. The greenish greys on cream were compression artefacts.</span></div>
+        <div class="docs-principle"><strong>Never a colour literal</strong><span>If a component needs a colour that is not a token, the token gets added first.</span></div>
+        <div class="docs-principle"><strong>44px and 16px</strong><span>Nothing tappable is under 44px; nothing typeable is under 16px, or iOS Safari zooms in and stays there.</span></div>
+      </div>
+    </header>
+
+    <div id="sections"></div>
+  </main>
+</div>
+
+<script type="module">
+import { icon, ICON_NAMES } from '../js/icons.js';
+import { gauge, gaugeDiscrete, gaugeShares } from '../js/gauge.js';
+
+/* =====================================================================
+ * THEME OVERRIDE
+ * =====================================================================
+ * tokens.css switches on `prefers-color-scheme`, which a page cannot
+ * override — so a toggle needs a second copy of the values under a
+ * selector it CAN control.
+ *
+ * Rather than paste ~110 token values into this file (two copies that
+ * would drift the first time anyone edits the real one), this fetches
+ * tokens.css, lifts the two :root blocks straight out of the text, and
+ * re-emits them as [data-theme="light"] and [data-theme="dark"].
+ *
+ * Same specificity as :root, injected after the <link>, so it wins. No
+ * build step, no duplication, and tokens.css is untouched. The one cost
+ * is that the page has to be served over http rather than opened from
+ * the file system — which it has to be anyway for ES modules.
+ * ================================================================== */
+const TOKENS_HREF = new URL('../css/tokens.css', import.meta.url).href;
+
+async function readTokensCss() {
+  const res = await fetch(TOKENS_HREF);
+  if (!res.ok) throw new Error(`Could not fetch tokens.css (${res.status})`);
+  return res.text();
+}
+
+async function installThemeOverride() {
+  const source = await readTokensCss();
+
+  const block = (fromIndex) => {
+    const open = source.indexOf('{', fromIndex);
+    let depth = 0;
+    for (let i = open; i < source.length; i += 1) {
+      if (source[i] === '{') depth += 1;
+      else if (source[i] === '}') {
+        depth -= 1;
+        if (depth === 0) return source.slice(open + 1, i);
+      }
+    }
+    return '';
+  };
+
+  const light = block(source.indexOf(':root'));
+  const darkAt = source.indexOf(':root', source.indexOf('prefers-color-scheme: dark'));
+  const dark = block(darkAt);
+
+  const style = document.createElement('style');
+  style.id = 'theme-override';
+  style.textContent =
+    `html[data-theme="light"]{${light}}\n` +
+    `html[data-theme="dark"]{${dark}}\n` +
+    /* color-scheme makes form controls, scrollbars and the caret follow
+       the override too, which is the half of dark mode CSS cannot do. */
+    `html[data-theme="light"]{color-scheme: light;}\n` +
+    `html[data-theme="dark"]{color-scheme: dark;}`;
+  document.head.appendChild(style);
+}
+
+function refreshTokenReadout() {
+  document.querySelectorAll('.docs-swatch[data-token]').forEach((el) => {
+    const valueEl = el.querySelector('.docs-swatch__value');
+    if (valueEl) valueEl.textContent = resolveColour(el.dataset.token);
+  });
+}
+
+function initThemeToggle() {
+  const root = document.documentElement;
+  const params = new URLSearchParams(location.search);
+  const stored = params.get('theme') || localStorage.getItem('ds-theme') || 'system';
+
+  const apply = (value) => {
+    if (value === 'system') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', value);
+    localStorage.setItem('ds-theme', value);
+    for (const button of document.querySelectorAll('[data-theme-value]')) {
+      button.classList.toggle('is-active', button.dataset.themeValue === value);
+    }
+    refreshTokenReadout();
+  };
+
+  document.getElementById('theme-toggle').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-theme-value]');
+    if (button) apply(button.dataset.themeValue);
+  });
+
+  apply(stored);
+}
+
+/* =====================================================================
+ * SNIPPET <-> LIVE EXAMPLE
+ * =====================================================================
+ * One source string per example. It is rendered twice: once as markup,
+ * once escaped into a <pre>. Drift is therefore impossible.
+ *
+ * Icons and gauges are markup generated by a function, and pasting 400
+ * characters of <path> into the snippet would make it unreadable, so the
+ * source uses two placeholders:
+ *
+ *   {{icon:camera}}   {{icon:camera:lg}}   {{icon:spinner:lg:ds-icon--spin}}
+ *   {{gauge:0.72:arc}}     {{gauge-discrete:amber}}
+ *   {{gauge-shares:62:28:10}}
+ *
+ * The live copy expands them to real SVG; the snippet shows the template
+ * expression a developer would actually write.
+ * ================================================================== */
+const ICON_RE = /\{\{icon:([a-z0-9-]+)(?::([a-z0-9]+))?(?::([a-zA-Z0-9-_ ]+))?\}\}/g;
+const GAUGE_RE = /\{\{gauge:([0-9.]+):([a-z]+)\}\}/g;
+const GAUGE_D_RE = /\{\{gauge-discrete:([a-z]+)\}\}/g;
+const GAUGE_S_RE = /\{\{gauge-shares:([0-9.]+):([0-9.]+):([0-9.]+)(?::([0-9.]+))?\}\}/g;
+
+const iconOptions = (size, className) => {
+  const opts = {};
+  if (size) opts.size = size;
+  if (className) opts.className = className;
+  return opts;
+};
+
+const toLive = (source) =>
+  source
+    .replace(ICON_RE, (_, name, size, className) => icon(name, iconOptions(size, className)))
+    .replace(GAUGE_RE, (_, value, variant) => gauge(Number(value), { variant }))
+    .replace(GAUGE_D_RE, (_, level) => gaugeDiscrete(level))
+    .replace(GAUGE_S_RE, (_, green, amber, red, unknown) =>
+      gaugeShares(
+        { green: Number(green), amber: Number(amber), red: Number(red), unknown: Number(unknown || 0) },
+        { variant: 'ring' }
+      )
+    );
+
+const toSnippet = (source) =>
+  source
+    .replace(ICON_RE, (_, name, size, className) => {
+      const opts = [];
+      if (size) opts.push(`size: '${size}'`);
+      if (className) opts.push(`className: '${className}'`);
+      return opts.length
+        ? `\${icon('${name}', { ${opts.join(', ')} })}`
+        : `\${icon('${name}')}`;
+    })
+    .replace(GAUGE_RE, (_, value, variant) => `\${gauge(${value}, { variant: '${variant}' })}`)
+    .replace(GAUGE_D_RE, (_, level) => `\${gaugeDiscrete('${level}')}`)
+    .replace(
+      GAUGE_S_RE,
+      (_, green, amber, red, unknown) =>
+        `\${gaugeShares({ green: ${green}, amber: ${amber}, red: ${red}, unknown: ${unknown || 0} }, { variant: 'ring' })}`
+    );
+
+const escapeHtml = (text) =>
+  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/* Strip the indentation the source string carries from being written
+ * inside a nested template literal, so the snippet starts at column 0. */
+function dedent(text) {
+  const lines = text.replace(/^\n/, '').replace(/\s+$/, '').split('\n');
+  const indents = lines.filter((l) => l.trim()).map((l) => l.match(/^\s*/)[0].length);
+  const cut = indents.length ? Math.min(...indents) : 0;
+  return lines.map((l) => l.slice(cut)).join('\n');
+}
+
+function renderItem(item) {
+  try {
+    const source = dedent(item.html);
+    const demoClass = ['docs-item__demo', ...(item.demo || []).map((m) => `docs-item__demo--${m}`)].join(' ');
+
+    return (
+      `<article class="docs-item" id="${item.id || ''}">` +
+        `<div class="docs-item__head">` +
+          `<code class="docs-item__name">${escapeHtml(item.name)}</code>` +
+          (item.note ? `<p class="docs-item__note">${item.note}</p>` : '') +
+        `</div>` +
+        `<div class="${demoClass}">${toLive(source)}</div>` +
+        `<pre class="docs-item__code"><code>${escapeHtml(toSnippet(source))}</code></pre>` +
+      `</article>`
+    );
+  } catch (err) {
+    console.error('specimen failed:', item.name, err);
+    return (
+      `<article class="docs-item">` +
+        `<div class="docs-item__head">` +
+          `<code class="docs-item__name">${escapeHtml(item.name)}</code>` +
+          `<p class="docs-item__note">Failed to render: ${escapeHtml(String(err.message || err))}</p>` +
+        `</div>` +
+      `</article>`
+    );
+  }
+}
+
+function renderSection(section) {
+  return (
+    `<section class="docs-section" id="${section.id}">` +
+      `<h2 class="docs-section__title">${section.title}</h2>` +
+      `<p class="docs-section__blurb">${section.blurb}</p>` +
+      (section.custom || '') +
+      section.items.map(renderItem).join('') +
+    `</section>`
+  );
+}
+
+/* =====================================================================
+ * THE TOKEN REFERENCE
+ * =====================================================================
+ * Generated by reading tokens.css and resolving each name against a live
+ * probe element, so it reports what the browser actually computed in the
+ * theme you are looking at — not what the file says it should be.
+ * ================================================================== */
+const probe = document.createElement('div');
+probe.style.display = 'none';
+document.body.appendChild(probe);
+
+const resolve = (name) => getComputedStyle(probe).getPropertyValue(name).trim();
+
+function toHex(value) {
+  const match = value.match(/rgba?\(([^)]+)\)/);
+  if (!match) return value;
+  const parts = match[1].split(/[\s,/]+/).filter(Boolean).map(Number);
+  const hex = parts.slice(0, 3).map((n) => Math.round(n).toString(16).padStart(2, '0')).join('');
+  const alpha = parts.length > 3 && parts[3] < 1 ? ` · ${Math.round(parts[3] * 100)}%` : '';
+  return `#${hex.toUpperCase()}${alpha}`;
+}
+
+/* Resolving a colour needs the browser to parse it, which means putting
+ * it on something. `color` is used rather than `background` because it
+ * always serialises to rgb(). */
+function resolveColour(name) {
+  probe.style.color = '';
+  probe.style.color = `var(${name})`;
+  return toHex(getComputedStyle(probe).color);
+}
+
+let TOKEN_NAMES = { colour: [], type: [], space: [], radius: [], elevation: [] };
+
+async function loadTokenNames() {
+  const source = await readTokensCss();
+  const rootEnd = source.indexOf('@media');
+  const head = source.slice(0, rootEnd === -1 ? source.length : rootEnd);
+  const names = [...head.matchAll(/^\s*(--[a-z0-9-]+)\s*:/gm)].map((m) => m[1]);
+
+  TOKEN_NAMES = {
+    colour: names.filter((n) => n.startsWith('--color-')),
+    gradient: names.filter((n) => n.startsWith('--gradient-')),
+    type: names.filter((n) => /^--type-.*-size$/.test(n)),
+    space: names.filter((n) => n.startsWith('--space-')),
+    control: names.filter((n) => n.startsWith('--control-height-')),
+    radius: names.filter((n) => n.startsWith('--radius-')),
+    elevation: names.filter((n) => n.startsWith('--elevation-')),
+  };
+}
+
+function swatches() {
+  const cell = (name) =>
+    `<div class="docs-swatch" data-token="${name}">` +
+      `<div class="docs-swatch__chip" style="background: var(${name})"></div>` +
+      `<span class="docs-swatch__name">${name}</span>` +
+      `<span class="docs-swatch__value">${resolveColour(name)}</span>` +
+    `</div>`;
+
+  const gradient = (name) =>
+    `<div class="docs-swatch">` +
+      `<div class="docs-swatch__chip" style="background: var(${name})"></div>` +
+      `<span class="docs-swatch__name">${name}</span>` +
+      `<span class="docs-swatch__value">gradient</span>` +
+    `</div>`;
+
+  return (
+    `<div class="docs-swatches">${TOKEN_NAMES.colour.map(cell).join('')}` +
+    `${TOKEN_NAMES.gradient.map(gradient).join('')}</div>`
+  );
+}
+
+function typeScale() {
+  const SAMPLE = 'Contains onion powder';
+  return TOKEN_NAMES.type
+    .map((sizeToken) => {
+      const role = sizeToken.replace(/^--type-/, '').replace(/-size$/, '');
+      probe.style.fontSize = `var(${sizeToken})`;
+      const px = parseFloat(getComputedStyle(probe).fontSize);
+      const weight = resolve(`--type-${role}-weight`) || '400';
+      const cls = role === 'input' ? '' : `ds-${role.replace('large-title', 'large-title')}`;
+      return (
+        `<div class="docs-type-row">` +
+          `<span class="docs-type-row__meta">${role} · ${Math.round(px)}pt · ${weight}</span>` +
+          `<span class="docs-type-row__sample ${cls}">${SAMPLE}</span>` +
+        `</div>`
+      );
+    })
+    .join('');
+}
+
+function lengthScale(names, kind) {
+  return names
+    .map((name) => {
+      probe.style.width = `var(${name})`;
+      const px = parseFloat(getComputedStyle(probe).width) || 0;
+      if (kind === 'bar') {
+        return (
+          `<div class="docs-scale-row">` +
+            `<span class="docs-scale-row__meta">${name} · ${px}px</span>` +
+            `<span class="docs-scale-row__bar" style="width: var(${name})"></span>` +
+          `</div>`
+        );
+      }
+      return (
+        `<div class="docs-scale-row">` +
+          `<span class="docs-scale-row__meta">${name} · ${px > 1000 ? 'pill' : px + 'px'}</span>` +
+          `<span class="docs-scale-row__box" style="border-radius: var(${name})"></span>` +
+        `</div>`
+      );
+    })
+    .join('');
+}
+
+function elevationScale() {
+  return TOKEN_NAMES.elevation
+    .map((name) => {
+      const value = resolve(name);
+      return (
+        `<div class="docs-scale-row">` +
+          `<span class="docs-scale-row__meta">${name}</span>` +
+          `<span class="docs-scale-row__elev" style="box-shadow: var(${name})"></span>` +
+          `<span class="docs-swatch__value">${value}</span>` +
+        `</div>`
+      );
+    })
+    .join('');
+}
+
+function iconGallery() {
+  return (
+    '<p class="docs-section__blurb">Every canonical name in <code>js/icons.js</code>. ' +
+    'Stroke is <code>currentColor</code>, so these inherit the surrounding text colour. ' +
+    'A dedicated sheet also lives at <a href="./icons.html">docs/icons.html</a>.</p>' +
+    `<div class="docs-icon-grid">${ICON_NAMES.map((name) =>
+      `<div class="docs-icon-cell">` +
+        icon(name, { size: 'lg', className: name === 'spinner' ? 'ds-icon--spin' : undefined }) +
+        `<code class="docs-icon-cell__name">${name}</code>` +
+      `</div>`
+    ).join('')}</div>`
+  );
+}
+
+/* =====================================================================
+ * THE SPECIMENS
+ * =====================================================================
+ * One entry per component. `html` is the single source of truth for both
+ * the live example and the snippet next to it.
+ * ================================================================== */
+function buildSections() {
+  return [
+
+  /* ------------------------------------------------------------------
+   * TOKENS
+   * ---------------------------------------------------------------- */
+  {
+    id: 'tokens',
+    title: 'Tokens',
+    blurb:
+      'Read live out of <code>css/tokens.css</code> and resolved against the ' +
+      'browser, so these are the values you are actually looking at right now — ' +
+      'switch the theme and every number on this page changes. ' +
+      'Colours were sampled programmatically from the three reference images; ' +
+      'the red, the not-recognised grey and the whole dark mode were designed, not sampled.',
+    custom:
+      '<h3 class="ds-title3">Colour</h3>' +
+      '<p class="docs-section__blurb">One neutral text ramp, three near-blacks doing three different jobs, ' +
+      'and a semantic set where every colour has a tinted <code>-bg</code> twin computed at 12% over the card.</p>' +
+      swatches() +
+      '<h3 class="ds-title3" style="margin-top: var(--space-8)">Type</h3>' +
+      '<p class="docs-section__blurb">Every measured element in the references landed within ±1.1pt of a stock iOS size, ' +
+      'so this is the native scale rather than a custom ramp. Rendered here at true size.</p>' +
+      typeScale() +
+      '<h3 class="ds-title3" style="margin-top: var(--space-8)">Spacing</h3>' +
+      '<p class="docs-section__blurb">4pt base. The measured anchors in the references were 20 / 24 / 32 / 60pt. Drawn to scale.</p>' +
+      lengthScale(TOKEN_NAMES.space.concat(TOKEN_NAMES.control), 'bar') +
+      '<h3 class="ds-title3" style="margin-top: var(--space-8)">Radius</h3>' +
+      '<p class="docs-section__blurb">Buttons, chips, badges and progress bars are all full pills — confirmed on 3× corner crops as ' +
+      'unambiguous stadiums, radius = height / 2. Components reference only the aliases, which is what makes ' +
+      'generous-vs-tight a five-line edit.</p>' +
+      lengthScale(TOKEN_NAMES.radius, 'box') +
+      '<h3 class="ds-title3" style="margin-top: var(--space-8)">Elevation</h3>' +
+      '<p class="docs-section__blurb">Every card edge in the references profiled as a 2–4px antialiased transition, i.e. no shadow at all. ' +
+      '<code>--elevation-0</code> is the default for surfaces; <code>--elevation-1</code> and <code>--elevation-2</code> need a reason at the call site. ' +
+      'Filled buttons are the other exception: <code>--elevation-button</code> is a soft grey shadow for white and black fills, ' +
+      '<code>--elevation-button-green</code> a lime-tinted one. Low opacity, large blur, small y-offset — elevation, not a hard drop.</p>' +
+      elevationScale(),
+    items: [],
+  },
+
+  /* ------------------------------------------------------------------
+   * FOUNDATIONS
+   * ---------------------------------------------------------------- */
+  {
+    id: 'foundations',
+    title: 'Foundations',
+    blurb:
+      'One utility per type role, four layout helpers, and a divider that is provided ' +
+      'mostly so nobody has to invent one — no hairline rule exists anywhere in the references, ' +
+      'so near-zero use is the expectation.',
+    items: [
+      {
+        name: '.ds-display / .ds-display-s / .ds-large-title / .ds-title1 … .ds-caption2',
+        note: 'Size, weight and line height are one decision, so one class sets all three.',
+        demo: ['column', 'card'],
+        html: `
+          <p class="ds-display">Display</p>
+          <p class="ds-display-s">Display S</p>
+          <p class="ds-large-title">Large title</p>
+          <p class="ds-title1">Contains onion powder</p>
+          <p class="ds-title2">Contains onion powder</p>
+          <p class="ds-title3">Contains onion powder</p>
+          <p class="ds-headline">Contains onion powder</p>
+          <p class="ds-body">Contains onion powder</p>
+          <p class="ds-callout">Contains onion powder</p>
+          <p class="ds-subhead">Contains onion powder</p>
+          <p class="ds-subhead ds-subhead--strong">Contains onion powder</p>
+          <p class="ds-footnote">Contains onion powder</p>
+          <p class="ds-caption1">Contains onion powder</p>
+          <p class="ds-caption2">Contains onion powder</p>`,
+      },
+      {
+        name: '.ds-text-primary / -secondary / -tertiary / -red / -amber / -green / -unknown / -brand / -on-dark / -lime',
+        note: 'One neutral ramp on every surface — there are no per-surface text colours. Lime and on-dark are for dark canvases.',
+        demo: ['column', 'card'],
+        html: `
+          <p class="ds-body ds-text-primary">Primary — the answer</p>
+          <p class="ds-body ds-text-secondary">Secondary — the reason</p>
+          <p class="ds-body ds-text-tertiary">Tertiary — the metadata</p>
+          <p class="ds-body ds-text-brand">Brand — deep green</p>
+          <p class="ds-body ds-text-red">Red — avoid</p>
+          <p class="ds-body ds-text-amber">Amber — check the portion</p>
+          <p class="ds-body ds-text-green">Green — fine</p>
+          <p class="ds-body ds-text-unknown">Unknown — not recognised</p>
+          <div class="ds-card ds-card--olive">
+            <p class="ds-body ds-text-on-dark">On dark</p>
+            <p class="ds-body ds-text-lime">Lime on dark</p>
+          </div>`,
+      },
+      {
+        name: '.ds-truncate / .ds-clamp-2 / .ds-text-center / .ds-text-right',
+        note: 'One-line ellipsis, two-line clamp, and alignment helpers.',
+        demo: ['column', 'card'],
+        html: `
+          <p class="ds-body ds-truncate" style="max-width: 16rem">Photograph the ingredient list on the back of the pack, not the front.</p>
+          <p class="ds-body ds-clamp-2" style="max-width: 16rem">Amber always means check the portion in Monash. Recipes change, so scan the label each time rather than trusting a previous result.</p>
+          <p class="ds-body ds-text-center">Centered</p>
+          <p class="ds-body ds-text-right">Right</p>`,
+      },
+      {
+        name: '.ds-stack / .ds-row / .ds-spacer',
+        note: 'Gaps come off the 4pt scale only. <code>--ds-gap</code> is the escape hatch and it still takes a token. <code>.ds-spacer</code> eats leftover space in a row.',
+        demo: ['block', 'card'],
+        html: `
+          <div class="ds-stack ds-stack--3">
+            <div class="ds-row ds-row--between">
+              <span class="ds-headline">Gruyère AOP</span>
+              <span class="ds-chip ds-chip--green ds-chip--sm">Green</span>
+            </div>
+            <div class="ds-row ds-row--2 ds-row--wrap">
+              <span class="ds-tag">Aged cheese</span>
+              <span class="ds-tag">Low lactose</span>
+              <span class="ds-spacer"></span>
+              <span class="ds-caption2 ds-text-tertiary">200g</span>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-section',
+        note: 'A titled block inside a screen.',
+        demo: ['block', 'card'],
+        html: `
+          <section class="ds-section">
+            <header class="ds-section__header">
+              <h2 class="ds-section__title">Recent scans</h2>
+              <a class="ds-section__action" href="#foundations">See all</a>
+            </header>
+            <p class="ds-subhead ds-text-secondary">Nothing scanned yet today.</p>
+          </section>`,
+      },
+      {
+        name: '.ds-screen / --cream / --sage / --olive / --flush',
+        note: 'The padded page canvas a screen of UI sits on. Olive inverts the type.',
+        demo: ['block'],
+        html: `
+          <div class="ds-stack ds-stack--3">
+            <div class="ds-screen ds-screen--cream"><p class="ds-footnote">.ds-screen--cream</p></div>
+            <div class="ds-screen ds-screen--sage"><p class="ds-footnote">.ds-screen--sage</p></div>
+            <div class="ds-screen ds-screen--olive"><p class="ds-footnote ds-text-on-dark">.ds-screen--olive</p></div>
+            <div class="ds-screen ds-screen--flush ds-screen--cream"><p class="ds-footnote">.ds-screen--flush (no inline padding)</p></div>
+          </div>`,
+      },
+      {
+        name: '.ds-divider / --inset / --flush / .ds-divider-label',
+        note: 'Provided; expected to be almost unused. Lists are separated by whitespace and card edges.',
+        demo: ['block', 'card'],
+        html: `
+          <p class="ds-body">Above the rule</p>
+          <hr class="ds-divider">
+          <p class="ds-body">Default</p>
+          <hr class="ds-divider ds-divider--inset">
+          <p class="ds-body">Inset</p>
+          <hr class="ds-divider ds-divider--flush">
+          <p class="ds-body">Flush</p>
+          <div class="ds-divider-label">or</div>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * ICONS
+   * ---------------------------------------------------------------- */
+  {
+    id: 'icons',
+    title: 'Icons',
+    blurb:
+      'Hand-drawn 24×24 strokes of <code>currentColor</code>. Markup comes from ' +
+      '<code>icon(name)</code> in <code>js/icons.js</code> — never from an external SVG sprite, ' +
+      'because WebKit still will not resolve <code>&lt;use href="file.svg#id"&gt;</code> on iPhone.',
+    custom: iconGallery(),
+    items: [
+      {
+        name: '.ds-icon--sm / --md / --lg / --xl',
+        note: 'Fixed sizes for icons that stand alone. Inline icons scale with the surrounding type (1em) and need no modifier.',
+        html: `
+          <span class="docs-specimen">{{icon:leaf:sm}}<span class="docs-specimen__label">.ds-icon--sm</span></span>
+          <span class="docs-specimen">{{icon:leaf:md}}<span class="docs-specimen__label">.ds-icon--md</span></span>
+          <span class="docs-specimen">{{icon:leaf:lg}}<span class="docs-specimen__label">.ds-icon--lg</span></span>
+          <span class="docs-specimen">{{icon:leaf:xl}}<span class="docs-specimen__label">.ds-icon--xl</span></span>`,
+      },
+      {
+        name: '.ds-icon--thin / --light / --bold / .ds-icon--spin',
+        note: 'Weight overrides, and the spinner. 1.75 is the default stroke.',
+        html: `
+          <span class="docs-specimen">{{icon:settings:lg:ds-icon--thin}}<span class="docs-specimen__label">thin</span></span>
+          <span class="docs-specimen">{{icon:settings:lg:ds-icon--light}}<span class="docs-specimen__label">light</span></span>
+          <span class="docs-specimen">{{icon:settings:lg}}<span class="docs-specimen__label">default</span></span>
+          <span class="docs-specimen">{{icon:settings:lg:ds-icon--bold}}<span class="docs-specimen__label">bold</span></span>
+          <span class="docs-specimen">{{icon:spinner:lg:ds-icon--spin}}<span class="docs-specimen__label">spin</span></span>`,
+      },
+      {
+        name: '.ds-icon-label',
+        note: 'Icon + text with a single shared gap, so call sites do not invent their own.',
+        html: `
+          <span class="ds-icon-label">{{icon:leaf:md}} Low FODMAP</span>
+          <span class="ds-icon-label">{{icon:camera:md}} Scan a label</span>
+          <span class="ds-icon-label">{{icon:warning-triangle:md}} Check the portion</span>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * BUTTONS
+   * ---------------------------------------------------------------- */
+  {
+    id: 'buttons',
+    title: 'Buttons',
+    blurb:
+      'Always a stadium. The primary fill is <code>--color-ink-button</code>, a blue-tinted ' +
+      'slate rather than black — the tint is what makes it read as an object on cream instead ' +
+      'of a hole in it. Filled variants carry a soft elevation whose colour follows the fill: ' +
+      'grey under white (<code>--secondary</code>) and black (<code>--primary</code>), green under lime. ' +
+      'Hover, active and focus are live on these examples: tab into them.',
+    items: [
+      {
+        name: '.ds-button--primary / --secondary / --tonal / --lime / --ghost / --destructive / --plain',
+        note:
+          'Seven variants, one shape. Primary and secondary use <code>--elevation-button</code> (grey); ' +
+          'lime uses <code>--elevation-button-green</code>. Ghost, tonal, plain and destructive stay flat.',
+        html: `
+          <button class="ds-button ds-button--primary" type="button">Check label</button>
+          <button class="ds-button ds-button--secondary" type="button">Secondary</button>
+          <button class="ds-button ds-button--tonal" type="button">Tonal</button>
+          <button class="ds-button ds-button--lime" type="button">Lime</button>
+          <button class="ds-button ds-button--ghost" type="button">Ghost</button>
+          <button class="ds-button ds-button--destructive" type="button">Delete scan</button>
+          <button class="ds-button ds-button--plain" type="button">Plain</button>`,
+      },
+      {
+        name: 'Fill-tinted elevation (home dock)',
+        note:
+          'The floating home pair: lime Scan over white Gallery. Same classes the app uses, so the ' +
+          'green shadow and the grey shadow are the live tokens, not a one-off.',
+        demo: ['block', 'column'],
+        html: `
+          <button class="ds-button ds-button--lime ds-button--lg ds-button--block" type="button">Scan label</button>
+          <button class="ds-button ds-button--secondary ds-button--lg ds-button--block" type="button">Choose from gallery</button>`,
+      },
+      {
+        name: '.ds-button--sm / --md / --lg',
+        note: 'Small shrinks the type and the inset but never the height: 44px is the floor.',
+        html: `
+          <button class="ds-button ds-button--primary ds-button--sm" type="button">Small</button>
+          <button class="ds-button ds-button--primary ds-button--md" type="button">Medium</button>
+          <button class="ds-button ds-button--primary ds-button--lg" type="button">Large</button>`,
+      },
+      {
+        name: '.ds-button--block / .ds-button-row',
+        note: 'Full width, and the two-up row the scanner form uses.',
+        demo: ['block'],
+        html: `
+          <button class="ds-button ds-button--primary ds-button--block" type="button">
+            {{icon:scan}} Scan a label
+          </button>
+          <div class="ds-button-row">
+            <button class="ds-button ds-button--primary" type="button">Check</button>
+            <button class="ds-button ds-button--secondary" type="button">Clear</button>
+          </div>`,
+      },
+      {
+        name: '.ds-button--icon',
+        note: 'Circular and icon-only. The accessible name still has to exist.',
+        html: `
+          <button class="ds-button ds-button--primary ds-button--icon" type="button">
+            {{icon:camera:md}}<span class="ds-visually-hidden">Take a photo</span>
+          </button>
+          <button class="ds-button ds-button--secondary ds-button--icon" type="button">
+            {{icon:share:md}}<span class="ds-visually-hidden">Share</span>
+          </button>
+          <button class="ds-button ds-button--ghost ds-button--icon" type="button">
+            {{icon:ellipsis:md}}<span class="ds-visually-hidden">More</span>
+          </button>
+          <button class="ds-button ds-button--tonal ds-button--icon ds-button--lg" type="button">
+            {{icon:leaf:lg}}<span class="ds-visually-hidden">Diet</span>
+          </button>`,
+      },
+      {
+        name: '.is-loading / :disabled / :focus-visible',
+        note:
+          'Loading keeps the label in the flow but invisible, so the button cannot resize ' +
+          'mid-request and move the thing under the user’s thumb. The focus example is painted ' +
+          'by the docs page, because <code>:focus-visible</code> only fires for real keyboard use.',
+        html: `
+          <button class="ds-button ds-button--primary is-loading" type="button">
+            Checking
+            <span class="ds-button__spinner">{{icon:spinner:md:ds-icon--spin}}</span>
+          </button>
+          <button class="ds-button ds-button--primary" type="button" disabled>Disabled</button>
+          <button class="ds-button ds-button--secondary" type="button" disabled>Disabled</button>
+          <button class="ds-button ds-button--primary" type="button" data-focus-demo>Focus ring</button>`,
+      },
+      {
+        name: '.ds-fab',
+        note: 'The lime shutter from reference 1, bigger than the 44px floor because it is pressed one-handed.',
+        html: `
+          <button class="ds-fab" type="button">
+            {{icon:camera:lg}}<span class="ds-visually-hidden">Capture</span>
+          </button>
+          <button class="ds-fab ds-fab--lg" type="button">
+            {{icon:scan:xl}}<span class="ds-visually-hidden">Scan</span>
+          </button>
+          <button class="ds-fab ds-fab--slate" type="button">
+            {{icon:plus:lg}}<span class="ds-visually-hidden">Add</span>
+          </button>
+          <button class="ds-fab ds-fab--extended" type="button">
+            {{icon:sparkles:md}} Ask the assistant
+          </button>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * CONTROLS
+   * ---------------------------------------------------------------- */
+  {
+    id: 'controls',
+    title: 'Controls',
+    blurb:
+      'All built on real inputs, so they work with a keyboard and announce correctly. ' +
+      'The segmented control’s thumb slides because it is one shared element driven by ' +
+      'a custom property, not a background that pops from option to option.',
+    items: [
+      {
+        name: '.ds-segmented',
+        note: 'Click through it — the thumb slides. <code>--ds-segment-index</code> is set by the call site.',
+        demo: ['block'],
+        html: `
+          <div class="ds-segmented" style="--ds-segment-count: 3; --ds-segment-index: 0">
+            <span class="ds-segmented__indicator"></span>
+            <input class="ds-segmented__input" type="radio" name="seg-demo" id="seg-all" checked>
+            <label class="ds-segmented__option" for="seg-all">All</label>
+            <input class="ds-segmented__input" type="radio" name="seg-demo" id="seg-flagged">
+            <label class="ds-segmented__option" for="seg-flagged">Flagged</label>
+            <input class="ds-segmented__input" type="radio" name="seg-demo" id="seg-safe">
+            <label class="ds-segmented__option" for="seg-safe">Safe</label>
+          </div>`,
+      },
+      {
+        name: '.ds-switch',
+        note: 'Track and thumb both come off the radius scale, so a radius decision moves them together.',
+        demo: ['column'],
+        html: `
+          <label class="ds-switch">
+            <input class="ds-switch__input" type="checkbox" checked>
+            <span class="ds-switch__track"><span class="ds-switch__thumb"></span></span>
+            <span class="ds-switch__label">Flag trace amounts</span>
+          </label>
+          <label class="ds-switch">
+            <input class="ds-switch__input" type="checkbox">
+            <span class="ds-switch__track"><span class="ds-switch__thumb"></span></span>
+            <span class="ds-switch__label">Off</span>
+          </label>
+          <label class="ds-switch">
+            <input class="ds-switch__input" type="checkbox" checked disabled>
+            <span class="ds-switch__track"><span class="ds-switch__thumb"></span></span>
+            <span class="ds-switch__label">Disabled</span>
+          </label>`,
+      },
+      {
+        name: '.ds-checkbox / .ds-radio',
+        note: 'The tick and the dot are drawn in CSS — a 24px stroked check goes muddy at 12px.',
+        demo: ['column'],
+        html: `
+          <label class="ds-checkbox">
+            <input class="ds-checkbox__input" type="checkbox" checked>
+            <span class="ds-checkbox__box"></span>
+            <span class="ds-checkbox__label">Lactose
+              <span class="ds-checkbox__hint">Hard cheeses are excluded automatically</span>
+            </span>
+          </label>
+          <label class="ds-checkbox">
+            <input class="ds-checkbox__input" type="checkbox">
+            <span class="ds-checkbox__box"></span>
+            <span class="ds-checkbox__label">Fructans</span>
+          </label>
+          <label class="ds-radio">
+            <input class="ds-radio__input" type="radio" name="radio-demo" checked>
+            <span class="ds-radio__box"></span>
+            <span class="ds-radio__label">Strict</span>
+          </label>
+          <label class="ds-radio">
+            <input class="ds-radio__input" type="radio" name="radio-demo">
+            <span class="ds-radio__box"></span>
+            <span class="ds-radio__label">Reintroduction</span>
+          </label>
+          <label class="ds-checkbox">
+            <input class="ds-checkbox__input" type="checkbox" disabled>
+            <span class="ds-checkbox__box"></span>
+            <span class="ds-checkbox__label">Disabled</span>
+          </label>`,
+      },
+      {
+        name: '.ds-slider',
+        demo: ['block'],
+        html: `
+          <div class="ds-slider">
+            <input class="ds-slider__input" type="range" min="0" max="100" value="64" aria-label="Portion size">
+            <div class="ds-slider__labels"><span>Small</span><span>Large</span></div>
+          </div>`,
+      },
+      {
+        name: '.ds-stepper',
+        html: `
+          <div class="ds-stepper">
+            <button class="ds-stepper__button" type="button">{{icon:minus:md}}<span class="ds-visually-hidden">Fewer</span></button>
+            <span class="ds-stepper__value">2</span>
+            <button class="ds-stepper__button" type="button">{{icon:plus:md}}<span class="ds-visually-hidden">More</span></button>
+          </div>
+          <div class="ds-stepper">
+            <button class="ds-stepper__button" type="button" disabled>{{icon:minus:md}}<span class="ds-visually-hidden">Fewer</span></button>
+            <span class="ds-stepper__value">0</span>
+            <button class="ds-stepper__button" type="button">{{icon:plus:md}}<span class="ds-visually-hidden">More</span></button>
+          </div>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * FORMS
+   * ---------------------------------------------------------------- */
+  {
+    id: 'forms',
+    title: 'Forms',
+    blurb:
+      'Every field is <code>--type-input-size</code> (16px) and never a type-role token. ' +
+      'That is a hard floor, not a preference: iOS Safari zooms the viewport in when a smaller ' +
+      'field takes focus and does not zoom back out, which turns a one-handed scan in an aisle ' +
+      'into a two-handed pinch to fix.',
+    items: [
+      {
+        name: '.ds-field / .ds-input',
+        note: 'Label, helper text, and the field itself.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-field">
+            <label class="ds-field__label" for="f-brand">Brand</label>
+            <input class="ds-input" id="f-brand" type="text" placeholder="Migros, Coop, Denner…">
+            <span class="ds-field__hint">Optional — helps match the product next time.</span>
+          </div>`,
+      },
+      {
+        name: '.ds-field--invalid / .ds-field--valid / .ds-field__error',
+        note: 'Red edge <em>and</em> a message. Colour alone is not a state anyone colour-blind can read.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-field ds-field--invalid">
+            <label class="ds-field__label" for="f-code">Product code</label>
+            <input class="ds-input" id="f-code" type="text" value="76 000 12" aria-invalid="true">
+            <span class="ds-field__error">{{icon:error-circle:sm}} That is not a valid EAN-13.</span>
+          </div>
+          <div class="ds-field ds-field--valid">
+            <label class="ds-field__label" for="f-ok">Product code</label>
+            <input class="ds-input" id="f-ok" type="text" value="7612345678901">
+            <span class="ds-field__hint">.ds-field--valid</span>
+          </div>`,
+      },
+      {
+        name: '.ds-textarea',
+        note: 'The scanner’s own field. Resizes vertically, never below 16px.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-field">
+            <label class="ds-field__label" for="f-label">Ingredient list</label>
+            <textarea class="ds-textarea" id="f-label" rows="4" placeholder="Tap here, then long-press and choose Scan Text to read the label with the camera."></textarea>
+            <div class="ds-row ds-row--between">
+              <span class="ds-field__hint">French, German, Italian and English.</span>
+              <span class="ds-field__counter">0 / 2000</span>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-search',
+        note: 'Pill-shaped, leading glyph, clear button that appears only when there is something to clear. Type in it.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-search">
+            {{icon:search:md}}
+            <input class="ds-search__input" type="search" placeholder="Search ingredients">
+            <button class="ds-search__clear" type="button">
+              {{icon:close:sm}}<span class="ds-visually-hidden">Clear</span>
+            </button>
+          </div>`,
+      },
+      {
+        name: '.ds-select',
+        note: 'Native <code>&lt;select&gt;</code> with <code>appearance: none</code>, so the chevron comes from the icon set.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-field">
+            <label class="ds-field__label" for="f-lang">Label language</label>
+            <span class="ds-select-wrap">
+              <select class="ds-select" id="f-lang">
+                <option>Detect automatically</option>
+                <option>Français</option>
+                <option>Deutsch</option>
+                <option>Italiano</option>
+              </select>
+              <span class="ds-select-wrap__chevron">{{icon:chevron-down:sm}}</span>
+            </span>
+          </div>`,
+      },
+      {
+        name: '.ds-input-group',
+        note: 'Leading or trailing adornments inside the field’s own border.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-input-group">
+            {{icon:barcode:md}}
+            <input class="ds-input" type="text" placeholder="Barcode">
+            <button class="ds-button ds-button--plain ds-button--sm" type="button">Scan</button>
+          </div>`,
+      },
+      {
+        name: '.ds-otp',
+        note: 'One input per digit, each still 16px so focus does not zoom. Falls to four narrower slots under 400px.',
+        demo: ['column'],
+        html: `
+          <div class="ds-otp">
+            <input class="ds-otp__slot" inputmode="numeric" maxlength="1" value="4" aria-label="Digit 1">
+            <input class="ds-otp__slot" inputmode="numeric" maxlength="1" value="8" aria-label="Digit 2">
+            <input class="ds-otp__slot is-active" inputmode="numeric" maxlength="1" aria-label="Digit 3">
+            <input class="ds-otp__slot" inputmode="numeric" maxlength="1" aria-label="Digit 4">
+          </div>
+          <div class="ds-otp ds-otp--invalid">
+            <input class="ds-otp__slot" inputmode="numeric" maxlength="1" value="1" aria-label="Digit 1">
+            <input class="ds-otp__slot" inputmode="numeric" maxlength="1" value="2" aria-label="Digit 2">
+            <input class="ds-otp__slot" inputmode="numeric" maxlength="1" value="3" aria-label="Digit 3">
+            <input class="ds-otp__slot" inputmode="numeric" maxlength="1" value="4" aria-label="Digit 4">
+          </div>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * CONTAINERS
+   * ---------------------------------------------------------------- */
+  {
+    id: 'containers',
+    title: 'Containers',
+    blurb:
+      'White on cream, and that contrast <em>is</em> the separation. The default card has ' +
+      'no shadow at all; the featured treatment is a 3px green ring, exactly as in reference 3. ' +
+      'Sheets and modals still take <code>--elevation-2</code> because they float over content. ' +
+      'Filled buttons are the other shadow in the file: a soft, fill-tinted elevation, not a card drop.',
+    items: [
+      {
+        name: '.ds-card / --elevated / --featured',
+        note: 'Default, the white-on-white exception, and the ring.',
+        demo: ['column'],
+        html: `
+          <div class="ds-card">
+            <p class="ds-card__title">Default</p>
+            <p class="ds-card__subtitle">No shadow. Separation is the surface change.</p>
+          </div>
+          <div class="ds-card ds-card--elevated">
+            <p class="ds-card__title">Elevated</p>
+            <p class="ds-card__subtitle">Only where white genuinely sits on white.</p>
+          </div>
+          <div class="ds-card ds-card--featured">
+            <p class="ds-card__title">Featured</p>
+            <p class="ds-card__subtitle">A 3px ring, not a shadow.</p>
+          </div>
+          <div class="ds-card ds-card--chip">
+            <p class="ds-card__title">Chip surface</p>
+            <p class="ds-card__subtitle">For a nested block inside a white card.</p>
+          </div>
+          <div class="ds-card ds-card--cream">
+            <p class="ds-card__title">.ds-card--cream</p>
+          </div>
+          <div class="ds-card ds-card--sage">
+            <p class="ds-card__title">.ds-card--sage</p>
+          </div>
+          <button class="ds-card ds-card--interactive" type="button">
+            <p class="ds-card__title">.ds-card--interactive</p>
+            <p class="ds-card__subtitle">Whole card is the hit target.</p>
+          </button>`,
+      },
+      {
+        name: '.ds-card--flush + .ds-card__media',
+        note: 'Photo header. The card clips it, so the image picks up the card radius for free.',
+        demo: ['block'],
+        html: `
+          <div class="ds-card ds-card--flush ds-card--lg">
+            <div class="ds-card__media" style="background: var(--gradient-hero)"></div>
+            <div class="ds-card__body">
+              <span class="ds-card__eyebrow">Migros · 200g</span>
+              <p class="ds-card__title">Sourdough spelt loaf</p>
+              <p class="ds-card__subtitle">Long-fermented, which is what drops the fructans.</p>
+              <div class="ds-card__footer">
+                <span class="ds-chip ds-chip--green ds-chip--sm">{{icon:check:sm}} Fine</span>
+                <span class="ds-chip ds-chip--sm">Spelt</span>
+              </div>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-sheet',
+        note: 'Bottom sheet at <code>--radius-surface-sheet</code>, the largest radius in the system. Bottom padding clears the home indicator.',
+        demo: ['block'],
+        html: `
+          <div class="ds-sheet">
+            <span class="ds-sheet__grabber"></span>
+            <div class="ds-sheet__header">
+              <h2 class="ds-sheet__title">Why amber?</h2>
+              <button class="ds-button ds-button--ghost ds-button--icon" type="button">
+                {{icon:close:md}}<span class="ds-visually-hidden">Close</span>
+              </button>
+            </div>
+            <div class="ds-sheet__body">
+              <p class="ds-body">Amber always means “check the portion in Monash”. Recipes change, so scan the label each time.</p>
+            </div>
+            <div class="ds-sheet__footer">
+              <button class="ds-button ds-button--primary" type="button">Got it</button>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-modal + .ds-scrim',
+        note: 'The scrim is an opaque token at element-level opacity — there is no translucent-overlay token, and an rgba() here would be exactly the drift the system exists to stop.',
+        demo: ['block', 'relative'],
+        html: `
+          <div class="ds-modal">
+            <div class="ds-scrim"></div>
+            <div class="ds-modal__dialog">
+              <span class="ds-modal__icon">{{icon:trash:lg}}</span>
+              <h2 class="ds-modal__title">Clear scan history?</h2>
+              <p class="ds-modal__body">All 34 saved scans will be removed from this phone. This cannot be undone.</p>
+              <div class="ds-modal__actions">
+                <button class="ds-button ds-button--destructive" type="button">Clear history</button>
+                <button class="ds-button ds-button--ghost" type="button">Cancel</button>
+              </div>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-action-sheet',
+        note: 'Two groups. The gap before Cancel is the whole convention.',
+        demo: ['block', 'center'],
+        html: `
+          <div class="ds-action-sheet">
+            <div class="ds-action-sheet__group">
+              <p class="ds-action-sheet__title">Add an ingredient list</p>
+              <button class="ds-action-sheet__button" type="button">{{icon:camera:md}} Take a photo</button>
+              <button class="ds-action-sheet__button" type="button">{{icon:photo:md}} Choose from library</button>
+              <button class="ds-action-sheet__button ds-action-sheet__button--destructive" type="button">{{icon:trash:md}} Discard this scan</button>
+            </div>
+            <button class="ds-action-sheet__button ds-action-sheet__button--cancel" type="button">Cancel</button>
+          </div>`,
+      },
+      {
+        name: '.ds-popover',
+        note: 'The arrow is a rotated square inheriting the surface fill, which is the only way to get one that is correct in both themes.',
+        demo: ['center'],
+        html: `
+          <div class="ds-popover ds-popover--bottom">
+            <span class="ds-popover__arrow"></span>
+            <p class="ds-popover__title">.ds-popover--bottom</p>
+            Ingredients after a “less than 2%” statement are downgraded — except onion, garlic, chicory and inulin.
+          </div>
+          <div class="ds-popover ds-popover--top">
+            <span class="ds-popover__arrow"></span>
+            <p class="ds-popover__title">.ds-popover--top</p>
+            Arrow on the other side.
+          </div>`,
+      },
+      {
+        name: '.ds-disclosure',
+        note:
+          'Native <code>&lt;details&gt;</code>. WebKit needs <em>both</em> the ' +
+          '<code>::-webkit-details-marker</code> rule and <code>list-style: none</code> ' +
+          'on the summary — miss either and iOS keeps its triangle.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-accordion">
+            <details class="ds-disclosure" open>
+              <summary class="ds-disclosure__summary">
+                How to use this
+                <span class="ds-disclosure__chevron">{{icon:chevron-down:md}}</span>
+              </summary>
+              <div class="ds-disclosure__body">
+                <p>Photograph the ingredient list on the back of the pack, not the front. Get close, keep the label flat, and use good light.</p>
+              </div>
+            </details>
+            <details class="ds-disclosure">
+              <summary class="ds-disclosure__summary">
+                What the colours mean
+                <span class="ds-disclosure__chevron">{{icon:chevron-down:md}}</span>
+              </summary>
+              <div class="ds-disclosure__body">
+                <p>Red is avoid, amber is check the portion, green is nothing recognised as high-FODMAP, grey is not in the list yet.</p>
+              </div>
+            </details>
+          </div>`,
+      },
+      {
+        name: '.ds-collapsible',
+        note: 'The same mechanism without the card chrome, for folding a section of a long result.',
+        demo: ['block'],
+        html: `
+          <details class="ds-collapsible">
+            <summary class="ds-collapsible__summary">
+              Not recognised
+              <span class="ds-collapsible__count">7</span>
+            </summary>
+            <div class="ds-collapsible__body ds-body ds-text-secondary">
+              Acidifiant · arôme naturel · épaississant · colorant · antioxydant
+            </div>
+          </details>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * DATA DISPLAY
+   * ---------------------------------------------------------------- */
+  {
+    id: 'data',
+    title: 'Data display',
+    blurb:
+      'The chip is the signature element of the references and gets the most attention here: ' +
+      'a true stadium with an optional leading icon and an optional score badge. Each variant sets ' +
+      'two custom properties rather than three declarations, which is what keeps the badge and the ' +
+      'icon in step with the chip automatically.',
+    items: [
+      {
+        name: '.ds-chip — neutral and each semantic colour',
+        html: `
+          <span class="ds-chip">Low FODMAP</span>
+          <span class="ds-chip ds-chip--neutral">Neutral</span>
+          <span class="ds-chip ds-chip--red">Avoid</span>
+          <span class="ds-chip ds-chip--orange">High</span>
+          <span class="ds-chip ds-chip--amber">Portion</span>
+          <span class="ds-chip ds-chip--yellow">Moderate</span>
+          <span class="ds-chip ds-chip--green">Fine</span>
+          <span class="ds-chip ds-chip--blue">Info</span>
+          <span class="ds-chip ds-chip--unknown">Not recognised</span>`,
+      },
+      {
+        name: '.ds-chip__icon / .ds-chip__score',
+        note: 'The score badge inherits the chip’s ink, so a red chip gets a red badge with no extra rule.',
+        html: `
+          <span class="ds-chip ds-chip--green">{{icon:leaf:sm}} Lactose free <span class="ds-chip__score">9</span></span>
+          <span class="ds-chip ds-chip--red">{{icon:onion:sm}} Onion <span class="ds-chip__score">2</span></span>
+          <span class="ds-chip ds-chip--amber">{{icon:wheat:sm}} Wheat <span class="ds-chip__score">5</span></span>
+          <span class="ds-chip ds-chip--unknown">{{icon:question-circle:sm}} Unknown</span>`,
+      },
+      {
+        name: '.ds-chip--sm / --lg / --solid-dark / --solid-lime / --solid-olive',
+        note: 'Solid variants exist for a chip that has to win against a photograph.',
+        html: `
+          <span class="ds-chip ds-chip--sm">Small</span>
+          <span class="ds-chip">Medium</span>
+          <span class="ds-chip ds-chip--lg">Large</span>
+          <span class="ds-chip ds-chip--solid-dark">{{icon:star-filled:sm}} 4.6</span>
+          <span class="ds-chip ds-chip--solid-lime">New</span>
+          <span class="ds-chip ds-chip--solid-olive">Migros</span>`,
+      },
+      {
+        name: '.ds-chip--selectable / --selected / .ds-chip-row',
+        note: 'Selectable chips get the 44px floor. The row scrolls horizontally rather than wrapping.',
+        demo: ['block'],
+        html: `
+          <div class="ds-chip-row">
+            <button class="ds-chip ds-chip--selectable ds-chip--selected" type="button">All</button>
+            <button class="ds-chip ds-chip--selectable" type="button">Fructans</button>
+            <button class="ds-chip ds-chip--selectable" type="button">Lactose</button>
+            <button class="ds-chip ds-chip--selectable" type="button">Polyols</button>
+            <button class="ds-chip ds-chip--selectable" type="button" disabled>Sorbitol</button>
+          </div>`,
+      },
+      {
+        name: '.ds-badge / .ds-dot',
+        note: 'A badge decorates something else; a chip is a thing in itself.',
+        html: `
+          <span class="ds-badge">3</span>
+          <span class="ds-badge ds-badge--red">12</span>
+          <span class="ds-badge ds-badge--amber">7</span>
+          <span class="ds-badge ds-badge--green">OK</span>
+          <span class="ds-badge ds-badge--lime">New</span>
+          <span class="ds-badge ds-badge--unknown">?</span>
+          <span class="ds-badge ds-badge--outline">Draft</span>
+          <span class="ds-dot-anchor">
+            {{icon:bell:lg}}<span class="ds-dot"></span>
+          </span>
+          <span class="ds-dot-anchor">
+            {{icon:list:lg}}<span class="ds-badge ds-badge--red">9</span>
+          </span>
+          <span class="ds-dot ds-dot--red"></span>
+          <span class="ds-dot ds-dot--amber"></span>
+          <span class="ds-dot ds-dot--green"></span>
+          <span class="ds-dot ds-dot--unknown"></span>
+          <span class="ds-dot ds-dot--lg ds-dot--green"></span>`,
+      },
+      {
+        name: '.ds-tag',
+        note: 'The one place the system is not a pill, so a tag never reads as tappable.',
+        html: `
+          <span class="ds-tag">Aged cheese</span>
+          <span class="ds-tag ds-tag--green">Verified</span>
+          <span class="ds-tag ds-tag--red">Recalled</span>
+          <span class="ds-tag">Spelt
+            <button class="ds-tag__remove" type="button">{{icon:close:sm}}<span class="ds-visually-hidden">Remove</span></button>
+          </span>`,
+      },
+      {
+        name: '.ds-avatar / .ds-avatar-stack',
+        html: `
+          <span class="ds-avatar ds-avatar--sm">SJ</span>
+          <span class="ds-avatar">SJ</span>
+          <span class="ds-avatar ds-avatar--lg ds-avatar--olive">MK</span>
+          <span class="ds-avatar ds-avatar--xl ds-avatar--slate">{{icon:person:lg}}</span>
+          <span class="ds-avatar-stack">
+            <span class="ds-avatar">SJ</span>
+            <span class="ds-avatar ds-avatar--olive">MK</span>
+            <span class="ds-avatar ds-avatar--slate">+4</span>
+          </span>`,
+      },
+      {
+        name: '.ds-list--inset / .ds-list-row',
+        note: 'Leading icon, title, subtitle, trailing value, chevron. The grouped inset list is the closest native thing to how the references group content.',
+        demo: ['block'],
+        html: `
+          <div class="ds-list-group">
+            <span class="ds-list-group__title">Today</span>
+            <ul class="ds-list ds-list--inset">
+              <li>
+                <a class="ds-list-row ds-list-row--interactive" href="#data">
+                  <span class="ds-list-row__leading ds-list-row__leading--red">{{icon:onion:md}}</span>
+                  <span class="ds-list-row__text">
+                    <span class="ds-list-row__title">Bouillon cube</span>
+                    <span class="ds-list-row__subtitle">Onion powder, garlic powder</span>
+                  </span>
+                  <span class="ds-list-row__trailing">
+                    <span class="ds-list-row__value">09:14</span>
+                    <span class="ds-list-row__chevron">{{icon:chevron-right:sm}}</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a class="ds-list-row ds-list-row--interactive" href="#data">
+                  <span class="ds-list-row__leading">{{icon:cheese:md}}</span>
+                  <span class="ds-list-row__text">
+                    <span class="ds-list-row__title">Gruyère AOP</span>
+                    <span class="ds-list-row__subtitle">Aged — very little lactose left</span>
+                  </span>
+                  <span class="ds-list-row__trailing">
+                    <span class="ds-chip ds-chip--green ds-chip--sm">Fine</span>
+                    <span class="ds-list-row__chevron">{{icon:chevron-right:sm}}</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <div class="ds-list-row">
+                  <span class="ds-list-row__leading ds-list-row__leading--plain">{{icon:moon:md}}</span>
+                  <span class="ds-list-row__text"><span class="ds-list-row__title">Dark mode</span></span>
+                  <span class="ds-list-row__trailing">
+                    <label class="ds-switch">
+                      <input class="ds-switch__input" type="checkbox">
+                      <span class="ds-switch__track"><span class="ds-switch__thumb"></span></span>
+                      <span class="ds-visually-hidden">Dark mode</span>
+                    </label>
+                  </span>
+                </div>
+              </li>
+            </ul>
+            <span class="ds-list-group__footer">Scans stay on this phone. Nothing is uploaded.</span>
+          </div>`,
+      },
+      {
+        name: '.ds-swipe-row',
+        note: 'Tap the row to reveal the actions. Pure CSS: the content slides over actions parked behind it.',
+        demo: ['block'],
+        html: `
+          <div class="ds-swipe-row">
+            <div class="ds-swipe-row__actions">
+              <button class="ds-swipe-row__action" type="button">{{icon:trash:md}} Delete</button>
+            </div>
+            <div class="ds-swipe-row__content">
+              <div class="ds-list-row">
+                <span class="ds-list-row__leading">{{icon:nutrition-label:md}}</span>
+                <span class="ds-list-row__text">
+                  <span class="ds-list-row__title">Tomato passata</span>
+                  <span class="ds-list-row__subtitle">Tap to reveal</span>
+                </span>
+              </div>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-progress / --red / --amber / --orange / --yellow / --green / --sm / --lg / --indeterminate',
+        note: 'Pill-shaped over <code>--color-semantic-track</code>, which is the one token sampled straight off reference 2’s Sugar bar.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-progress-row">
+            <span class="ds-progress-row__label">Sugar</span>
+            <span class="ds-progress ds-progress--orange" style="--ds-progress-value: .82"><span class="ds-progress__fill"></span></span>
+            <span class="ds-progress-row__value">18g</span>
+          </div>
+          <div class="ds-progress-row">
+            <span class="ds-progress-row__label">Fats</span>
+            <span class="ds-progress ds-progress--yellow" style="--ds-progress-value: .46"><span class="ds-progress__fill"></span></span>
+            <span class="ds-progress-row__value">7g</span>
+          </div>
+          <div class="ds-progress-row">
+            <span class="ds-progress-row__label">Carbs</span>
+            <span class="ds-progress ds-progress--green" style="--ds-progress-value: .22"><span class="ds-progress__fill"></span></span>
+            <span class="ds-progress-row__value">4g</span>
+          </div>
+          <div class="ds-progress-row">
+            <span class="ds-progress-row__label">Red</span>
+            <span class="ds-progress ds-progress--red" style="--ds-progress-value: .9"><span class="ds-progress__fill"></span></span>
+            <span class="ds-progress-row__value">high</span>
+          </div>
+          <div class="ds-progress-row">
+            <span class="ds-progress-row__label">Amber</span>
+            <span class="ds-progress ds-progress--amber ds-progress--sm" style="--ds-progress-value: .5"><span class="ds-progress__fill"></span></span>
+            <span class="ds-progress-row__value">.ds-progress--sm</span>
+          </div>
+          <span class="ds-progress ds-progress--lg ds-progress--indeterminate"><span class="ds-progress__fill"></span></span>`,
+      },
+      {
+        name: '.ds-dial',
+        note: 'A conic-gradient with a pseudo-element punching the hole — one element, no SVG, and the value is a single custom property so it animates.',
+        html: `
+          <span class="ds-dial" style="--ds-dial-value: .72"><span class="ds-dial__value">72</span></span>
+          <span class="ds-dial ds-dial--amber" style="--ds-dial-value: .45"><span class="ds-dial__value">45</span></span>
+          <span class="ds-dial ds-dial--red" style="--ds-dial-value: .18"><span class="ds-dial__value">18</span></span>
+          <span class="ds-dial ds-dial--lg" style="--ds-dial-value: .9"><span class="ds-dial__value">90</span></span>
+          <span class="ds-dial ds-dial--on-cream" style="--ds-dial-value: .6"><span class="ds-dial__value">60</span></span>`,
+      },
+      {
+        name: '.ds-stat / .ds-stat-grid',
+        demo: ['block'],
+        html: `
+          <div class="ds-stat-grid">
+            <div class="ds-stat">
+              <span class="ds-stat__label">Scans</span>
+              <span class="ds-stat__value">34</span>
+              <span class="ds-stat__delta">{{icon:trending-up:sm}} 12 this week</span>
+            </div>
+            <div class="ds-stat ds-stat--featured">
+              <span class="ds-stat__label">Clean</span>
+              <span class="ds-stat__value">71%</span>
+              <span class="ds-stat__delta">{{icon:trending-up:sm}} up 4</span>
+            </div>
+            <div class="ds-stat ds-stat--chip">
+              <span class="ds-stat__label">Flagged</span>
+              <span class="ds-stat__value">10</span>
+              <span class="ds-stat__delta ds-stat__delta--down">{{icon:chart-bar:sm}} down 2</span>
+            </div>
+          </div>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * THE GAUGE
+   * ---------------------------------------------------------------- */
+  {
+    id: 'gauge',
+    title: 'The dotted-arc gauge',
+    blurb:
+      'The signature dial: a ring band ~24% of the diameter, dots ~2.8%, six concentric rings ' +
+      'with a half-step stagger (so they read as a halftone, not as radial spokes), ~196 dots, ' +
+      'colour running orange → yellow → green around the arc. The open C has its gap on the right. ' +
+      'Geometry is generated by <code>js/gauge.js</code> as one inline <code>&lt;svg&gt;</code> ' +
+      'of <code>&lt;circle&gt;</code>s; colour stays in <code>components.css</code>, because a JS file ' +
+      'writing <code>fill="#E68617"</code> would have smuggled a colour literal past the token system. ' +
+      '<strong>The scan result ships <code>gaugeShares</code> on the closed ring</strong> — a dotted ' +
+      'donut of Eat / Limit / Avoid per 100g, not a fake 0–100 score.',
+    items: [
+      {
+        name: 'gauge(value, { variant: "arc" })',
+        note: 'The open “C”, gap on the right — orange at the bottom, green at the top-right, matching the references.',
+        demo: ['center', 'card'],
+        html: `
+          <div class="ds-gauge">
+            {{gauge:0.72:arc}}
+            <div class="ds-gauge__centre">
+              <span class="ds-gauge__value">72</span>
+              <span class="ds-gauge__caption">Good</span>
+            </div>
+          </div>`,
+      },
+      {
+        name: 'gauge(value, { variant: "ring" })',
+        note: 'Closed, starting at the top so the low end of the scale is where a clock would put twelve.',
+        demo: ['center', 'card'],
+        html: `
+          <div class="ds-gauge">
+            {{gauge:0.45:ring}}
+            <div class="ds-gauge__centre">
+              <span class="ds-gauge__value">45</span>
+              <span class="ds-gauge__caption">Moderate</span>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-gauge--sm / --lg',
+        note: 'Same markup at three sizes; the value type steps with it.',
+        demo: ['center', 'card'],
+        html: `
+          <div class="ds-gauge ds-gauge--sm">
+            {{gauge:0.3:arc}}
+            <div class="ds-gauge__centre"><span class="ds-gauge__value">30</span></div>
+          </div>
+          <div class="ds-gauge">
+            {{gauge:0.6:arc}}
+            <div class="ds-gauge__centre"><span class="ds-gauge__value">60</span></div>
+          </div>
+          <div class="ds-gauge ds-gauge--lg">
+            {{gauge:0.95:arc}}
+            <div class="ds-gauge__centre">
+              <span class="ds-gauge__value">95</span>
+              <span class="ds-gauge__caption">Excellent</span>
+            </div>
+          </div>`,
+      },
+      {
+        name: 'gaugeShares({ green, amber, red }) — the variant to ship',
+        note:
+          'A dotted donut on the closed ring. Wedge sizes are grams per 100g of Eat / Limit / Avoid, ' +
+          'so a first-listed tomato paste fills most of the ring and a last-listed onion powder is a sliver. ' +
+          'The centre still holds the verdict; the ring holds the mix.',
+        demo: ['center', 'card'],
+        html: `
+          <div class="ds-stack ds-stack--3" style="align-items: center">
+            <div class="ds-gauge">
+              {{gauge-shares:62:28:10}}
+              <div class="ds-gauge__centre">
+                <span class="ds-gauge__caption ds-headline ds-text-amber">Limit</span>
+                <span class="ds-gauge__caption">per 100g</span>
+              </div>
+            </div>
+            <div class="ds-gauge-legend">
+              <span class="ds-gauge-legend__item ds-text-green"><span class="ds-dot ds-dot--green"></span>62% Eat</span>
+              <span class="ds-gauge-legend__item ds-text-amber"><span class="ds-dot ds-dot--amber"></span>28% Limit</span>
+              <span class="ds-gauge-legend__item ds-text-red"><span class="ds-dot ds-dot--red"></span>10% Avoid</span>
+            </div>
+          </div>`,
+      },
+      {
+        name: 'gaugeDiscrete(level)',
+        note:
+          'Three fixed segments, one lit. The eye reads “second of three” instantly and ' +
+          'cannot read a false decimal into it — which matters, because this classifier ' +
+          'answers in four buckets, not in scores.',
+        demo: ['center', 'card'],
+        html: `
+          <div class="ds-gauge ds-gauge--sm">
+            {{gauge-discrete:red}}
+            <div class="ds-gauge__centre">
+              <span class="ds-gauge__caption ds-headline ds-text-red">Avoid</span>
+            </div>
+          </div>
+          <div class="ds-gauge ds-gauge--sm">
+            {{gauge-discrete:amber}}
+            <div class="ds-gauge__centre">
+              <span class="ds-gauge__caption ds-headline">Portion</span>
+            </div>
+          </div>
+          <div class="ds-gauge ds-gauge--sm">
+            {{gauge-discrete:green}}
+            <div class="ds-gauge__centre">
+              <span class="ds-gauge__caption ds-headline ds-text-green">Fine</span>
+            </div>
+          </div>
+          <div class="ds-gauge ds-gauge--sm">
+            {{gauge-discrete:unknown}}
+            <div class="ds-gauge__centre">
+              <span class="ds-gauge__caption ds-headline ds-text-unknown">Unknown</span>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-verdict-chip — the simplest honest answer',
+        note: 'And the one I would actually ship at the top of a result: no dial at all, just the word, at size.',
+        demo: ['column', 'card'],
+        html: `
+          <span class="ds-verdict-chip ds-verdict-chip--red">{{icon:x-circle:md}} Avoid</span>
+          <span class="ds-verdict-chip ds-verdict-chip--amber">{{icon:warning-triangle:md}} Check the portion</span>
+          <span class="ds-verdict-chip ds-verdict-chip--green">{{icon:check-circle:md}} Looks fine</span>
+          <span class="ds-verdict-chip">{{icon:question-circle:md}} Can’t read the label</span>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * NAVIGATION
+   * ---------------------------------------------------------------- */
+  {
+    id: 'navigation',
+    title: 'Navigation',
+    blurb:
+      'The large title collapses to an inline one on scroll. Both titles are always in the DOM ' +
+      'and cross-fade, because measuring and swapping text mid-scroll produces a visible jump on ' +
+      'a 60Hz phone. The tab bar swaps to the filled icon for the active tab rather than only ' +
+      'changing colour — which is what the filled/outline pairs in the icon set are for.',
+    items: [
+      {
+        name: '.ds-navbar--large',
+        note: 'Scroll the iPhone frames further down to watch it collapse.',
+        demo: ['block', 'card'],
+        html: `
+          <div class="ds-navbar">
+            <div class="ds-navbar__bar">
+              <div class="ds-navbar__leading">
+                <button class="ds-button ds-button--ghost ds-button--icon" type="button">
+                  {{icon:chevron-left:md}}<span class="ds-visually-hidden">Back</span>
+                </button>
+              </div>
+              <span class="ds-navbar__inline-title">Scan history</span>
+              <div class="ds-navbar__trailing">
+                <button class="ds-button ds-button--ghost ds-button--icon" type="button">
+                  {{icon:search:md}}<span class="ds-visually-hidden">Search</span>
+                </button>
+                <button class="ds-button ds-button--ghost ds-button--icon" type="button">
+                  {{icon:ellipsis:md}}<span class="ds-visually-hidden">More</span>
+                </button>
+              </div>
+            </div>
+            <h1 class="ds-navbar__large-title">Scan history</h1>
+            <p class="ds-navbar__subtitle">34 labels, 10 flagged</p>
+          </div>`,
+      },
+      {
+        name: '.ds-navbar.is-collapsed',
+        note: 'The collapsed end state, shown statically.',
+        demo: ['block', 'card'],
+        html: `
+          <div class="ds-navbar is-collapsed">
+            <div class="ds-navbar__bar">
+              <div class="ds-navbar__leading">
+                <button class="ds-navbar__back" type="button">{{icon:chevron-left:sm}} Back</button>
+              </div>
+              <span class="ds-navbar__inline-title">Scan history</span>
+              <div class="ds-navbar__trailing">
+                <button class="ds-button ds-button--plain ds-button--sm" type="button">Edit</button>
+              </div>
+            </div>
+            <h1 class="ds-navbar__large-title">Scan history</h1>
+          </div>`,
+      },
+      {
+        name: '.ds-tabbar',
+        note: 'Five tabs, filled icon for the active one, and the lime capture disc in the middle.',
+        demo: ['block'],
+        html: `
+          <nav class="ds-tabbar">
+            <button class="ds-tabbar__item is-active" type="button">
+              {{icon:home-filled:lg}}<span class="ds-tabbar__label">Home</span>
+            </button>
+            <button class="ds-tabbar__item" type="button">
+              {{icon:history:lg}}<span class="ds-tabbar__label">History</span>
+            </button>
+            <button class="ds-tabbar__item ds-tabbar__item--capture" type="button">
+              <span class="ds-tabbar__capture">{{icon:scan:lg}}</span>
+              <span class="ds-visually-hidden">Scan</span>
+            </button>
+            <button class="ds-tabbar__item" type="button">
+              {{icon:list:lg}}<span class="ds-tabbar__label">Foods</span>
+            </button>
+            <button class="ds-tabbar__item" type="button">
+              {{icon:person:lg}}<span class="ds-tabbar__label">You</span>
+            </button>
+          </nav>`,
+      },
+      {
+        name: '.ds-toolbar',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-toolbar">
+            <button class="ds-toolbar__item" type="button">{{icon:share:md}}<span class="ds-visually-hidden">Share</span></button>
+            <button class="ds-toolbar__item" type="button">{{icon:bookmark:md}}<span class="ds-visually-hidden">Save</span></button>
+            <button class="ds-toolbar__item" type="button">{{icon:copy:md}}<span class="ds-visually-hidden">Copy</span></button>
+            <button class="ds-toolbar__item ds-toolbar__item--primary" type="button">{{icon:refresh:md}} Rescan</button>
+          </div>
+          <div class="ds-toolbar ds-toolbar--pill">
+            <button class="ds-toolbar__item is-active" type="button">{{icon:list:md}}<span class="ds-visually-hidden">List</span></button>
+            <button class="ds-toolbar__item" type="button">{{icon:chart-bar:md}}<span class="ds-visually-hidden">Chart</span></button>
+            <button class="ds-toolbar__item" type="button">{{icon:sliders:md}}<span class="ds-visually-hidden">Filters</span></button>
+          </div>`,
+      },
+      {
+        name: '.ds-breadcrumbs / .ds-page-dots',
+        note: 'The active page dot is a stadium rather than a bigger circle — a width change is readable where 2px of diameter is not.',
+        demo: ['block', 'column'],
+        html: `
+          <ol class="ds-breadcrumbs">
+            <li class="ds-breadcrumbs__item"><a class="ds-breadcrumbs__link" href="#navigation">Foods</a></li>
+            <li class="ds-breadcrumbs__separator">{{icon:chevron-right:sm}}</li>
+            <li class="ds-breadcrumbs__item"><a class="ds-breadcrumbs__link" href="#navigation">Dairy</a></li>
+            <li class="ds-breadcrumbs__separator">{{icon:chevron-right:sm}}</li>
+            <li class="ds-breadcrumbs__item" aria-current="page">Gruyère</li>
+          </ol>
+          <div class="ds-page-dots">
+            <button class="ds-page-dots__dot is-active" type="button"><span class="ds-visually-hidden">Page 1</span></button>
+            <button class="ds-page-dots__dot" type="button"><span class="ds-visually-hidden">Page 2</span></button>
+            <button class="ds-page-dots__dot" type="button"><span class="ds-visually-hidden">Page 3</span></button>
+            <button class="ds-page-dots__dot" type="button"><span class="ds-visually-hidden">Page 4</span></button>
+          </div>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * FEEDBACK
+   * ---------------------------------------------------------------- */
+  {
+    id: 'feedback',
+    title: 'Feedback & status',
+    blurb:
+      'Every semantic variant carries an icon as well as a colour, because a traffic light ' +
+      'that is only a colour fails for the 8% of men who cannot see it. The skeleton shimmer ' +
+      'stops dead under <code>prefers-reduced-motion</code> rather than slowing down — a slow ' +
+      'sweep across a whole screen is worse than none.',
+    items: [
+      {
+        name: '.ds-toast',
+        demo: ['column', 'card'],
+        html: `
+          <div class="ds-toast">
+            <span class="ds-toast__icon">{{icon:check-circle-filled:md}}</span>
+            <span class="ds-toast__text">Saved to history</span>
+            <button class="ds-toast__action" type="button">Undo</button>
+          </div>
+          <div class="ds-toast ds-toast--error">
+            <span class="ds-toast__icon">{{icon:error-circle-filled:md}}</span>
+            <span class="ds-toast__text">Couldn’t read that photo</span>
+          </div>`,
+      },
+      {
+        name: '.ds-alert — one per semantic colour',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-alert ds-alert--red">
+            <span class="ds-alert__icon">{{icon:x-circle:md}}</span>
+            <div class="ds-alert__body">
+              <p class="ds-alert__title">Contains onion powder</p>
+              <p class="ds-alert__text">Onion is never downgraded by the trace rule.</p>
+            </div>
+          </div>
+          <div class="ds-alert ds-alert--orange">
+            <span class="ds-alert__icon">{{icon:warning-triangle:md}}</span>
+            <div class="ds-alert__body">
+              <p class="ds-alert__title">.ds-alert--orange</p>
+              <p class="ds-alert__text">The orange semantic, distinct from amber.</p>
+            </div>
+          </div>
+          <div class="ds-alert ds-alert--amber">
+            <span class="ds-alert__icon">{{icon:warning-triangle:md}}</span>
+            <div class="ds-alert__body">
+              <p class="ds-alert__title">Check the portion</p>
+              <p class="ds-alert__text">Monash has the lab-tested serving limits; this app does not.</p>
+            </div>
+          </div>
+          <div class="ds-alert ds-alert--green">
+            <span class="ds-alert__icon">{{icon:check-circle:md}}</span>
+            <div class="ds-alert__body"><p class="ds-alert__title">No high-FODMAP ingredients recognised</p></div>
+          </div>
+          <div class="ds-alert ds-alert--blue">
+            <span class="ds-alert__icon">{{icon:info-circle:md}}</span>
+            <div class="ds-alert__body"><p class="ds-alert__title">Recipes change — scan the label each time</p></div>
+            <button class="ds-alert__close" type="button">{{icon:close:sm}}<span class="ds-visually-hidden">Dismiss</span></button>
+          </div>
+          <div class="ds-alert ds-alert--unknown">
+            <span class="ds-alert__icon">{{icon:question-circle:md}}</span>
+            <div class="ds-alert__body"><p class="ds-alert__title">7 ingredients are not in the list yet</p></div>
+          </div>
+          <div class="ds-alert ds-alert--amber ds-alert--accent">
+            <div class="ds-alert__body">
+              <p class="ds-alert__text">Accent variant — this is what the app’s Monash note is today.</p>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-empty / .ds-empty--error / .ds-empty--unknown',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-empty">
+            <span class="ds-empty__icon">{{icon:shopping-basket:xl}}</span>
+            <h3 class="ds-empty__title">No scans yet</h3>
+            <p class="ds-empty__text">Photograph the ingredient list on the back of a pack and it will show up here.</p>
+            <button class="ds-button ds-button--primary ds-empty__action" type="button">{{icon:camera:md}} Scan a label</button>
+          </div>
+          <div class="ds-empty ds-empty--error">
+            <span class="ds-empty__icon">{{icon:text-recognition:xl}}</span>
+            <h3 class="ds-empty__title">Can’t read the label</h3>
+            <p class="ds-empty__text">Take the photo again: closer, flatter, and with more light. Aim at the ingredient list on the back, not the front of the pack.</p>
+            <button class="ds-button ds-button--secondary ds-empty__action" type="button">{{icon:retake:md}} Retake</button>
+          </div>
+          <div class="ds-empty ds-empty--unknown">
+            <span class="ds-empty__icon">{{icon:question-circle:xl}}</span>
+            <h3 class="ds-empty__title">.ds-empty--unknown</h3>
+            <p class="ds-empty__text">Nothing in this list is in the database yet.</p>
+          </div>`,
+      },
+      {
+        name: '.ds-loading / .ds-spinner',
+        demo: ['block'],
+        html: `
+          <div class="ds-loading">
+            {{icon:spinner:lg:ds-icon--spin ds-spinner ds-spinner--lg}}
+            <p class="ds-loading__label">Reading the label…</p>
+          </div>`,
+      },
+      {
+        name: '.ds-skeleton',
+        note: 'Text lines, a card, and a list row.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-skeleton-card">
+            <span class="ds-skeleton ds-skeleton--media"></span>
+            <span class="ds-skeleton ds-skeleton--title"></span>
+            <span class="ds-skeleton ds-skeleton--text"></span>
+            <span class="ds-skeleton ds-skeleton--text ds-skeleton--line-short"></span>
+            <div class="ds-row ds-row--2">
+              <span class="ds-skeleton ds-skeleton--chip"></span>
+              <span class="ds-skeleton ds-skeleton--chip"></span>
+            </div>
+          </div>
+          <div class="ds-skeleton-row">
+            <span class="ds-skeleton ds-skeleton--avatar"></span>
+            <span class="ds-skeleton-row__text">
+              <span class="ds-skeleton ds-skeleton--text"></span>
+              <span class="ds-skeleton ds-skeleton--text ds-skeleton--line-xshort"></span>
+            </span>
+          </div>`,
+      },
+      {
+        name: '.ds-pull-refresh',
+        note: '<code>--ds-pull</code> is the 0–1 drag progress, so the arrow rotates with the finger before it becomes a spinner.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-pull-refresh" style="--ds-pull: .55">
+            <span class="ds-pull-refresh__icon">{{icon:chevron-down:md}}</span>
+            Pull to refresh
+          </div>
+          <div class="ds-pull-refresh is-refreshing">
+            {{icon:spinner:md:ds-icon--spin ds-pull-refresh__icon}}
+            Refreshing
+          </div>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * APP-SPECIFIC
+   * ---------------------------------------------------------------- */
+  {
+    id: 'app',
+    title: 'App components',
+    blurb:
+      'The pieces the FODMAP app itself is made of, rebuilt on tokens. These are ' +
+      '<code>ds-</code>-prefixed twins of the unprefixed classes <code>js/render.js</code> ' +
+      'emits today, which is what lets the port happen one component at a time instead of ' +
+      'in one commit.',
+    items: [
+      {
+        name: '.ds-verdict — all four states + --ringed',
+        note:
+          'The answer the user came for, read at arm’s length under supermarket lighting. ' +
+          'Not-recognised is deliberately grey and colourless: a bad photo must never look like a pass.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-verdict ds-verdict--red">
+            <span class="ds-verdict__icon">{{icon:close:md}}</span>
+            <div class="ds-verdict__body">
+              <p class="ds-verdict__title">Avoid</p>
+              <p class="ds-verdict__subtitle">Contains high-FODMAP ingredients</p>
+            </div>
+          </div>
+          <div class="ds-verdict ds-verdict--amber">
+            <span class="ds-verdict__icon">{{icon:warning-triangle:md}}</span>
+            <div class="ds-verdict__body">
+              <p class="ds-verdict__title">Check the portion</p>
+              <p class="ds-verdict__subtitle">Nothing clearly high, but some ingredients depend on quantity</p>
+            </div>
+          </div>
+          <div class="ds-verdict ds-verdict--green">
+            <span class="ds-verdict__icon">{{icon:check:md}}</span>
+            <div class="ds-verdict__body">
+              <p class="ds-verdict__title">Looks fine</p>
+              <p class="ds-verdict__subtitle">No high-FODMAP ingredients recognised</p>
+            </div>
+          </div>
+          <div class="ds-verdict ds-verdict--unknown">
+            <span class="ds-verdict__icon">{{icon:question-circle:md}}</span>
+            <div class="ds-verdict__body">
+              <p class="ds-verdict__title">Can’t read the label</p>
+              <p class="ds-verdict__subtitle">Take the photo again: closer, flatter, and with more light.</p>
+            </div>
+          </div>
+          <div class="ds-verdict ds-verdict--green ds-verdict--ringed">
+            <span class="ds-verdict__icon">{{icon:check:md}}</span>
+            <div class="ds-verdict__body">
+              <p class="ds-verdict__title">.ds-verdict--ringed</p>
+              <p class="ds-verdict__subtitle">For when the card sits on its own tint and needs an edge.</p>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-ingredient',
+        demo: ['block'],
+        html: `
+          <div class="ds-card">
+            <p class="ds-caption2 ds-text-red">Triggers (2)</p>
+            <ul class="ds-list">
+              <li class="ds-ingredient ds-ingredient--red">
+                <span class="ds-ingredient__dot"></span>
+                <span class="ds-ingredient__body">
+                  <span class="ds-ingredient__name">Oignon en poudre</span>
+                  <span class="ds-ingredient__reason">Onion — fructans. High in any amount.</span>
+                  <span class="ds-ingredient__tag">below 2% but still counts</span>
+                </span>
+              </li>
+              <li class="ds-ingredient ds-ingredient--amber">
+                <span class="ds-ingredient__dot"></span>
+                <span class="ds-ingredient__body">
+                  <span class="ds-ingredient__name">Weizenmehl</span>
+                  <span class="ds-ingredient__reason">Wheat — portion-dependent. Check Monash.</span>
+                </span>
+              </li>
+              <li class="ds-ingredient ds-ingredient--green">
+                <span class="ds-ingredient__dot"></span>
+                <span class="ds-ingredient__body">
+                  <span class="ds-ingredient__name">Sel</span>
+                  <span class="ds-ingredient__reason">Salt — nothing recognised as high.</span>
+                </span>
+              </li>
+            </ul>
+          </div>`,
+      },
+      {
+        name: '.ds-viewfinder',
+        note: 'Four corner brackets in <code>--color-scanner-bracket</code>, each as wide as its radius so the curve reads as a continuation of the frame rather than as four separate hooks.',
+        demo: ['block'],
+        html: `
+          <div class="ds-viewfinder">
+            <div class="ds-viewfinder__frame">
+              <span class="ds-viewfinder__bracket ds-viewfinder__bracket--tl"></span>
+              <span class="ds-viewfinder__bracket ds-viewfinder__bracket--tr"></span>
+              <span class="ds-viewfinder__bracket ds-viewfinder__bracket--bl"></span>
+              <span class="ds-viewfinder__bracket ds-viewfinder__bracket--br"></span>
+              <span class="ds-viewfinder__scanline"></span>
+            </div>
+            <p class="ds-viewfinder__hint ds-footnote">Aim at the ingredient list on the back</p>
+          </div>`,
+      },
+      {
+        name: '.ds-camera-bar',
+        demo: ['block', 'dark'],
+        html: `
+          <div class="ds-camera-bar ds-camera-bar--on-dark">
+            <button class="ds-camera-bar__button" type="button">{{icon:flash-on:md}}<span class="ds-visually-hidden">Flash</span></button>
+            <button class="ds-camera-bar__shutter" type="button"><span class="ds-visually-hidden">Capture</span></button>
+            <button class="ds-camera-bar__button" type="button">{{icon:photo:md}}<span class="ds-visually-hidden">Library</span></button>
+          </div>`,
+      },
+      {
+        name: '.ds-product-card',
+        note: 'Photo header with a chip parked on it, then a chip row underneath.',
+        demo: ['block'],
+        html: `
+          <div class="ds-product-card ds-product-card--featured">
+            <div class="ds-product-card__media" style="background: var(--gradient-hero)">
+              <span class="ds-chip ds-chip--solid-dark ds-chip--sm ds-product-card__media-chip">{{icon:star-filled:sm}} 4.6</span>
+            </div>
+            <div class="ds-product-card__body">
+              <h3 class="ds-product-card__title">Gruyère AOP, 12 months</h3>
+              <p class="ds-product-card__meta">Migros · 200g · CHF 6.40</p>
+              <div class="ds-chip-row">
+                <span class="ds-chip ds-chip--green ds-chip--sm">{{icon:check:sm}} Fine <span class="ds-chip__score">9</span></span>
+                <span class="ds-chip ds-chip--sm">Aged</span>
+                <span class="ds-chip ds-chip--sm">Low lactose</span>
+                <span class="ds-chip ds-chip--sm">Swiss</span>
+              </div>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-bubble',
+        note: 'Asymmetric radii: the corner nearest its own side stays tight, which is what makes a bubble point at its speaker.',
+        demo: ['block', 'column'],
+        html: `
+          <div class="ds-chat">
+            <div class="ds-bubble ds-bubble--user">Is Gruyère OK on the elimination phase?</div>
+            <div class="ds-bubble ds-bubble--ai">
+              <span class="ds-bubble__meta">{{icon:sparkles:sm}} Assistant</span>
+              Yes — hard aged cheeses have very little lactose left. Monash lists 40g as a green serving.
+            </div>
+            <div class="ds-bubble ds-bubble--ai ds-bubble--typing">
+              <span class="ds-bubble__tick"></span>
+              <span class="ds-bubble__tick"></span>
+              <span class="ds-bubble__tick"></span>
+            </div>
+          </div>`,
+      },
+      {
+        name: '.ds-suggestions',
+        demo: ['block'],
+        html: `
+          <div class="ds-suggestions">
+            <button class="ds-suggestion" type="button">
+              <span class="ds-suggestion__icon">{{icon:gut:md}}</span>
+              <span class="ds-suggestion__text">Why is onion always red?</span>
+            </button>
+            <button class="ds-suggestion ds-suggestion--featured" type="button">
+              <span class="ds-suggestion__icon">{{icon:cheese:md}}</span>
+              <span class="ds-suggestion__text">Which cheeses are safe?</span>
+            </button>
+            <button class="ds-suggestion" type="button">
+              <span class="ds-suggestion__icon">{{icon:wheat:md}}</span>
+              <span class="ds-suggestion__text">Is sourdough spelt lower?</span>
+            </button>
+            <button class="ds-suggestion" type="button">
+              <span class="ds-suggestion__icon">{{icon:shopping-cart:md}}</span>
+              <span class="ds-suggestion__text">Build a Coop shopping list</span>
+            </button>
+          </div>`,
+      },
+      {
+        name: '.ds-composer',
+        demo: ['block'],
+        html: `
+          <div class="ds-composer ds-composer--bar">
+            <button class="ds-composer__button" type="button">{{icon:paperclip:md}}<span class="ds-visually-hidden">Attach</span></button>
+            <textarea class="ds-composer__input" rows="1" placeholder="Ask about an ingredient"></textarea>
+            <button class="ds-composer__button" type="button">{{icon:microphone:md}}<span class="ds-visually-hidden">Dictate</span></button>
+            <button class="ds-composer__button ds-composer__button--send" type="button">{{icon:send:md}}<span class="ds-visually-hidden">Send</span></button>
+          </div>`,
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------------
+   * COMPOSED SCREENS
+   * ---------------------------------------------------------------- */
+  {
+    id: 'screens',
+    title: 'Composed screens',
+    blurb:
+      'The reference screens reassembled out of nothing but the components above, at a real ' +
+      '390×844 iPhone viewport. Scroll the first one to watch the large title collapse. ' +
+      'If the kit composes into these three, it composes into the app.',
+    items: [
+      {
+        name: 'Product detail — .ds-phone',
+        note: 'Navbar + gauge + progress rows + chip row + verdict + list.',
+        demo: ['block', 'center'],
+        html: `
+          <div class="ds-phone">
+            <div class="ds-phone__screen">
+              <div class="ds-navbar ds-navbar--sticky" data-collapse-demo>
+                <div class="ds-navbar__bar">
+                  <div class="ds-navbar__leading">
+                    <button class="ds-button ds-button--ghost ds-button--icon" type="button">
+                      {{icon:chevron-left:md}}<span class="ds-visually-hidden">Back</span>
+                    </button>
+                  </div>
+                  <span class="ds-navbar__inline-title">Gruyère AOP</span>
+                  <div class="ds-navbar__trailing">
+                    <button class="ds-button ds-button--ghost ds-button--icon" type="button">
+                      {{icon:bookmark:md}}<span class="ds-visually-hidden">Save</span>
+                    </button>
+                  </div>
+                </div>
+                <h1 class="ds-navbar__large-title">Gruyère AOP</h1>
+                <p class="ds-navbar__subtitle">Migros · 200g</p>
+              </div>
+
+              <div class="ds-screen ds-screen--cream ds-stack ds-stack--4">
+                <div class="ds-card ds-card--lg ds-stack ds-stack--4" style="align-items: center">
+                  <div class="ds-gauge">
+                    {{gauge:0.86:arc}}
+                    <div class="ds-gauge__centre">
+                      <span class="ds-gauge__value">86</span>
+                      <span class="ds-gauge__caption">Gut score</span>
+                    </div>
+                  </div>
+                  <div class="ds-chip-row ds-chip-row--wrap">
+                    <span class="ds-chip ds-chip--green ds-chip--sm">{{icon:check:sm}} Low lactose</span>
+                    <span class="ds-chip ds-chip--sm">Aged 12m</span>
+                    <span class="ds-chip ds-chip--sm">No additives</span>
+                  </div>
+                </div>
+
+                <div class="ds-card ds-stack ds-stack--3">
+                  <p class="ds-caption2 ds-text-secondary">Per 100g</p>
+                  <div class="ds-progress-row">
+                    <span class="ds-progress-row__label">Sugar</span>
+                    <span class="ds-progress ds-progress--green" style="--ds-progress-value: .08"><span class="ds-progress__fill"></span></span>
+                    <span class="ds-progress-row__value">0.4g</span>
+                  </div>
+                  <div class="ds-progress-row">
+                    <span class="ds-progress-row__label">Fats</span>
+                    <span class="ds-progress ds-progress--orange" style="--ds-progress-value: .78"><span class="ds-progress__fill"></span></span>
+                    <span class="ds-progress-row__value">32g</span>
+                  </div>
+                  <div class="ds-progress-row">
+                    <span class="ds-progress-row__label">Carbs</span>
+                    <span class="ds-progress ds-progress--yellow" style="--ds-progress-value: .04"><span class="ds-progress__fill"></span></span>
+                    <span class="ds-progress-row__value">0.4g</span>
+                  </div>
+                </div>
+
+                <div class="ds-verdict ds-verdict--green">
+                  <span class="ds-verdict__icon">{{icon:check:md}}</span>
+                  <div class="ds-verdict__body">
+                    <p class="ds-verdict__title">Looks fine</p>
+                    <p class="ds-verdict__subtitle">No high-FODMAP ingredients recognised</p>
+                  </div>
+                </div>
+
+                <ul class="ds-list ds-list--inset">
+                  <li>
+                    <div class="ds-list-row">
+                      <span class="ds-list-row__leading">{{icon:milk-carton:md}}</span>
+                      <span class="ds-list-row__text">
+                        <span class="ds-list-row__title">Lait de vache</span>
+                        <span class="ds-list-row__subtitle">Aged — lactose broken down</span>
+                      </span>
+                      <span class="ds-list-row__trailing"><span class="ds-dot ds-dot--green"></span></span>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="ds-list-row">
+                      <span class="ds-list-row__leading ds-list-row__leading--plain">{{icon:sugar-cube:md}}</span>
+                      <span class="ds-list-row__text">
+                        <span class="ds-list-row__title">Sel, cultures, présure</span>
+                        <span class="ds-list-row__subtitle">Nothing recognised as high</span>
+                      </span>
+                      <span class="ds-list-row__trailing"><span class="ds-dot ds-dot--green"></span></span>
+                    </div>
+                  </li>
+                </ul>
+
+                <button class="ds-button ds-button--primary ds-button--lg ds-button--block" type="button">
+                  {{icon:scan:md}} Scan another label
+                </button>
+              </div>
+
+              <nav class="ds-tabbar">
+                <button class="ds-tabbar__item is-active" type="button">{{icon:home-filled:lg}}<span class="ds-tabbar__label">Home</span></button>
+                <button class="ds-tabbar__item" type="button">{{icon:history:lg}}<span class="ds-tabbar__label">History</span></button>
+                <button class="ds-tabbar__item ds-tabbar__item--capture" type="button">
+                  <span class="ds-tabbar__capture">{{icon:scan:lg}}</span><span class="ds-visually-hidden">Scan</span>
+                </button>
+                <button class="ds-tabbar__item" type="button">{{icon:list:lg}}<span class="ds-tabbar__label">Foods</span></button>
+                <button class="ds-tabbar__item" type="button">{{icon:person:lg}}<span class="ds-tabbar__label">You</span></button>
+              </nav>
+            </div>
+          </div>`,
+      },
+      {
+        name: 'Scanner — .ds-viewfinder + .ds-camera-bar',
+        demo: ['block', 'center'],
+        html: `
+          <div class="ds-phone ds-phone--dark">
+            <div class="ds-phone__screen">
+              <div class="ds-navbar ds-navbar--transparent">
+                <div class="ds-navbar__bar">
+                  <div class="ds-navbar__leading">
+                    <button class="ds-button ds-button--ghost ds-button--icon ds-text-on-dark" type="button">
+                      {{icon:close:md}}<span class="ds-visually-hidden">Close</span>
+                    </button>
+                  </div>
+                  <div class="ds-navbar__trailing">
+                    <span class="ds-chip ds-chip--solid-dark ds-chip--sm">{{icon:text-recognition:sm}} Live text</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ds-screen ds-stack ds-stack--5" style="background: transparent; flex: 1 1 auto">
+                <div class="ds-viewfinder">
+                  <div class="ds-viewfinder__frame">
+                    <span class="ds-viewfinder__bracket ds-viewfinder__bracket--tl"></span>
+                    <span class="ds-viewfinder__bracket ds-viewfinder__bracket--tr"></span>
+                    <span class="ds-viewfinder__bracket ds-viewfinder__bracket--bl"></span>
+                    <span class="ds-viewfinder__bracket ds-viewfinder__bracket--br"></span>
+                    <span class="ds-viewfinder__scanline"></span>
+                  </div>
+                  <p class="ds-viewfinder__hint ds-footnote">Aim at the ingredient list on the back</p>
+                </div>
+
+                <div class="ds-chip-row ds-chip-row--wrap">
+                  <span class="ds-chip ds-chip--solid-lime ds-chip--sm">{{icon:viewfinder:sm}} Auto</span>
+                  <span class="ds-chip ds-chip--solid-dark ds-chip--sm">{{icon:barcode:sm}} Barcode</span>
+                  <span class="ds-chip ds-chip--solid-dark ds-chip--sm">{{icon:document-text:sm}} Label</span>
+                </div>
+              </div>
+
+              <div class="ds-camera-bar ds-camera-bar--on-dark">
+                <button class="ds-camera-bar__button" type="button">{{icon:flash-on:md}}<span class="ds-visually-hidden">Flash</span></button>
+                <button class="ds-camera-bar__shutter" type="button"><span class="ds-visually-hidden">Capture</span></button>
+                <button class="ds-camera-bar__button" type="button">{{icon:photo:md}}<span class="ds-visually-hidden">Library</span></button>
+              </div>
+            </div>
+          </div>`,
+      },
+      {
+        name: 'Assistant — .ds-chat + .ds-composer',
+        demo: ['block', 'center'],
+        html: `
+          <div class="ds-phone">
+            <div class="ds-phone__screen">
+              <div class="ds-navbar ds-navbar--card is-collapsed">
+                <div class="ds-navbar__bar">
+                  <div class="ds-navbar__leading">
+                    <button class="ds-navbar__back" type="button">{{icon:chevron-left:sm}} Back</button>
+                  </div>
+                  <span class="ds-navbar__inline-title">Assistant</span>
+                  <div class="ds-navbar__trailing">
+                    <button class="ds-button ds-button--ghost ds-button--icon" type="button">
+                      {{icon:ellipsis:md}}<span class="ds-visually-hidden">More</span>
+                    </button>
+                  </div>
+                </div>
+                <h1 class="ds-navbar__large-title">Assistant</h1>
+              </div>
+
+              <div class="ds-screen ds-screen--cream ds-stack ds-stack--5" style="flex: 1 1 auto">
+                <div class="ds-card ds-card--lg ds-stack ds-stack--3" style="background: var(--gradient-chat)">
+                  <span class="ds-avatar ds-avatar--slate">{{icon:sparkles:md}}</span>
+                  <p class="ds-title3">What can I help you check?</p>
+                  <p class="ds-subhead ds-text-secondary">I read the same ingredient list the traffic light does — ask me why it said what it said.</p>
+                </div>
+
+                <div class="ds-suggestions">
+                  <button class="ds-suggestion" type="button">
+                    <span class="ds-suggestion__icon">{{icon:onion:md}}</span>
+                    <span class="ds-suggestion__text">Why is onion always red?</span>
+                  </button>
+                  <button class="ds-suggestion" type="button">
+                    <span class="ds-suggestion__icon">{{icon:cheese:md}}</span>
+                    <span class="ds-suggestion__text">Which cheeses are safe?</span>
+                  </button>
+                </div>
+
+                <div class="ds-chat">
+                  <div class="ds-bubble ds-bubble--user">Is Gruyère OK on the elimination phase?</div>
+                  <div class="ds-bubble ds-bubble--ai">
+                    <span class="ds-bubble__meta">{{icon:sparkles:sm}} Assistant</span>
+                    Yes. Hard aged cheeses have almost no lactose left — Monash lists 40g of Gruyère as a green serving.
+                  </div>
+                  <div class="ds-bubble ds-bubble--ai ds-bubble--typing">
+                    <span class="ds-bubble__tick"></span>
+                    <span class="ds-bubble__tick"></span>
+                    <span class="ds-bubble__tick"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ds-composer ds-composer--bar">
+                <button class="ds-composer__button" type="button">{{icon:paperclip:md}}<span class="ds-visually-hidden">Attach</span></button>
+                <textarea class="ds-composer__input" rows="1" placeholder="Ask about an ingredient"></textarea>
+                <button class="ds-composer__button" type="button">{{icon:microphone:md}}<span class="ds-visually-hidden">Dictate</span></button>
+                <button class="ds-composer__button ds-composer__button--send" type="button">{{icon:send:md}}<span class="ds-visually-hidden">Send</span></button>
+              </div>
+            </div>
+          </div>`,
+      },
+    ],
+  },
+
+  ];
+}
+
+function hideServerBanner() {
+  document.documentElement.classList.remove('docs-needs-server');
+  document.getElementById('docs-banner')?.classList.remove('is-visible');
+}
+
+function showServerBanner(err) {
+  document.documentElement.classList.add('docs-needs-server');
+  const banner = document.getElementById('docs-banner');
+  const reason = banner?.querySelector('[data-reason]');
+  banner?.classList.add('is-visible');
+  if (reason) {
+    reason.textContent = err
+      ? `Could not load css/tokens.css (${err.message || err}). Specimens still render if the modules loaded; theme toggle and token chips may be incomplete.`
+      : reason.textContent;
+  }
+}
+
+async function main() {
+  try {
+    await Promise.all([installThemeOverride(), loadTokenNames()]);
+  } catch (err) {
+    console.warn('tokens.css fetch failed; rendering specimens anyway.', err);
+    showServerBanner(err);
+  }
+
+  initThemeToggle();
+
+  document.getElementById('brand').innerHTML =
+    icon('traffic-light', { size: 'md' }) + '<span>FODMAP</span>';
+
+  const sections = buildSections();
+
+  document.getElementById('sections').innerHTML = sections.map(renderSection).join('');
+
+  /* Sections are injected after parse, so a URL hash (#buttons) would
+   * otherwise miss its target and leave the reader on the hero. */
+  const jumpToHash = () => {
+    const id = decodeURIComponent(location.hash.replace(/^#/, ''));
+    if (id) document.getElementById(id)?.scrollIntoView();
+  };
+  jumpToHash();
+  requestAnimationFrame(jumpToHash);
+
+  const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
+  const navGroups = [
+    ['System', ['tokens', 'foundations', 'icons']],
+    ['Kit', ['buttons', 'controls', 'forms', 'containers', 'data', 'gauge', 'navigation', 'feedback']],
+    ['App', ['app', 'screens']],
+  ];
+  document.getElementById('nav').innerHTML = navGroups
+    .map(([group, ids]) =>
+      `<div class="docs-nav__group">${group}</div>` +
+      ids
+        .map((id) => {
+          const s = byId[id];
+          return s ? `<a class="docs-nav__link" href="#${s.id}">${s.title}</a>` : '';
+        })
+        .join('')
+    )
+    .join('');
+
+  /* Highlight the section you are actually looking at. rootMargin pins
+     the trigger line near the top of the viewport, so the link flips
+     when the heading reaches the top rather than when it enters. */
+  const links = new Map([...document.querySelectorAll('.docs-nav__link')].map((a) => [a.getAttribute('href').slice(1), a]));
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        for (const link of links.values()) link.classList.remove('is-active');
+        links.get(entry.target.id)?.classList.add('is-active');
+      }
+    },
+    { rootMargin: '-10% 0px -85% 0px' }
+  );
+  for (const section of document.querySelectorAll('.docs-section')) observer.observe(section);
+
+  wireInteractiveDemos();
+  if (document.querySelector('#sections .docs-section')) hideServerBanner();
+
+  console.log(
+    `design system: ${sections.length} sections, ` +
+    `${sections.reduce((n, s) => n + s.items.length, 0)} specimens, ` +
+    `${ICON_NAMES.length} icons`
+  );
+}
+
+/* The handful of demos that need behaviour to be worth looking at. All
+ * of it is behaviour a real call site would have to write too — none of
+ * it is styling. */
+function wireInteractiveDemos() {
+  /* Segmented control: the sliding thumb is driven by an index. */
+  for (const group of document.querySelectorAll('.ds-segmented')) {
+    const inputs = [...group.querySelectorAll('.ds-segmented__input')];
+    group.style.setProperty('--ds-segment-count', inputs.length);
+    group.addEventListener('change', () => {
+      const index = inputs.findIndex((input) => input.checked);
+      if (index >= 0) group.style.setProperty('--ds-segment-index', index);
+    });
+  }
+
+  /* Search: the clear button only exists when there is something to clear. */
+  for (const search of document.querySelectorAll('.ds-search')) {
+    const input = search.querySelector('.ds-search__input');
+    const sync = () => search.classList.toggle('is-filled', input.value.length > 0);
+    input.addEventListener('input', sync);
+    search.querySelector('.ds-search__clear')?.addEventListener('click', () => {
+      input.value = '';
+      sync();
+      input.focus();
+    });
+    sync();
+  }
+
+  /* Swipe row, disclosure chevrons and the nav bar collapse are all
+     CSS-driven; these just toggle the class a real gesture would. */
+  for (const row of document.querySelectorAll('.ds-swipe-row')) {
+    row.querySelector('.ds-swipe-row__content')?.addEventListener('click', () => {
+      row.classList.toggle('is-open');
+    });
+  }
+
+  for (const navbar of document.querySelectorAll('[data-collapse-demo]')) {
+    const scroller = navbar.closest('.ds-phone__screen') || navbar.parentElement;
+    scroller.addEventListener('scroll', () => {
+      navbar.classList.toggle('is-collapsed', scroller.scrollTop > 24);
+    });
+  }
+
+  /* The focus ring is the one state that cannot be shown statically:
+     :focus-visible only paints for keyboard interaction. This paints the
+     same token so the ring is on the page, and labels itself as a fake. */
+  for (const button of document.querySelectorAll('[data-focus-demo]')) {
+    button.classList.add('docs-force-focus');
+  }
+}
+
+main().catch((err) => {
+  console.error(err);
+  showServerBanner(err);
+});
+</script>
+</body>
+</html>
