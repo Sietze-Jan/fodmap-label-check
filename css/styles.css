@@ -28,15 +28,26 @@ body {
 /* ---------------------------------------------------------------- home */
 
 .home {
-  height: 100dvh;
-  max-height: 100dvh;
-  overflow: hidden;
+  /* Two large dock buttons + their gap and vertical padding. Used as
+   * scroll padding so the last list rows can still be brought above the
+   * overlay, and as the dock's own box so the two stay in lockstep. */
+  --home-dock-height: calc(
+    var(--space-4)
+    + var(--control-height-primary)
+    + var(--space-3)
+    + var(--control-height-primary)
+    + var(--space-4)
+    + env(safe-area-inset-bottom, 0px)
+  );
+  min-height: 100dvh;
+  height: auto;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  /* Dock is in the flex flow (not fixed), so it owns the home-indicator
-   * inset and the list sizes itself to the space above. */
-  padding-bottom: 0;
+  /* Page (not the list) is the scroller. Extra bottom space equals the
+   * floating dock so the last rows can be read above it. */
+  padding-bottom: var(--home-dock-height);
 }
 
 .home__hero,
@@ -59,14 +70,14 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
-  min-height: 0;
-  overflow: hidden;
+  height: auto;
+  overflow: visible;
 }
 
-/* .ds-card is display:block; keep the column so the list scrolls inside
- * the white surface and the Scan/Gallery dock stays below it. */
+/* .ds-card is display:block; keep the column so head, chips and rows
+ * stack, while height follows the number of rows. */
 .foods.ds-card {
   display: flex;
 }
@@ -140,11 +151,9 @@ body {
 }
 
 .foods__list {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  flex: 0 0 auto;
+  height: auto;
+  overflow: visible;
 }
 
 .foods__list .ds-list-row {
@@ -176,22 +185,35 @@ body {
   flex: 0 0 auto;
 }
 
-/* Thumb-reach dock. In the home column, not position:fixed, so the
- * scrolling food list is sized to the space above it and never sits
- * under the buttons. Cream fill, no shadow. Safe-area padding keeps
- * the buttons above the iOS home indicator. */
+/* Thumb-reach dock. Fixed over the page so the food list can grow with
+ * its rows and continue under the buttons; z-index keeps Scan/Gallery
+ * tappable. Transparent fill so the card shows through. Safe-area
+ * padding keeps the buttons above the iOS home indicator. Matches
+ * .ds-screen's max-width and inline inset because fixed is viewport-
+ * relative and would otherwise ignore the parent padding. */
 .home__dock {
-  position: relative;
+  position: fixed;
   z-index: 20;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  flex: 0 0 auto;
   width: 100%;
-  padding-inline: 0;
+  max-width: 640px;
+  margin-inline: auto;
+  padding-inline:
+    max(var(--space-4), env(safe-area-inset-left))
+    max(var(--space-4), env(safe-area-inset-right));
   padding-top: var(--space-4);
-  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
-  background: var(--color-surface-page-default);
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  background: transparent;
+  pointer-events: none;
+}
+
+.home__dock .ds-button {
+  pointer-events: auto;
 }
 
 /* Hidden, but still in the layout flow at 1px: display:none on a file
