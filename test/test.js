@@ -497,6 +497,215 @@ test(
     t.flagged(r, 'red', 'Inulin');
     t.flagged(r, 'red', 'Maltitol');
     t.flagged(r, 'yellow', 'Almond');
+    t.flagged(r, 'yellow', 'Milk protein');
+  }
+);
+
+// =====================================================================
+console.log('\nPhase 2 — Swiss label gaps');
+// =====================================================================
+
+test(
+  'garlic extract is alwaysFlag red',
+  "Ingrédients: riz, sel, extrait d'ail.",
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Garlic extract');
+  }
+);
+
+test(
+  'onion juice is alwaysFlag red',
+  "Ingrédients: eau, sel, jus d'oignon, persil.",
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Onion juice');
+    t.notAnywhere(r, 'Apple');
+  }
+);
+
+test(
+  'garlic granules and fried onion stay red below 2%',
+  "Ingrédients: riz, sel, moins de 2% de: granules d'ail, oignon frit.",
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Garlic granules');
+    t.flagged(r, 'red', 'Fried onion');
+  }
+);
+
+test(
+  'caséinate is milk protein, not unknown',
+  'Ingrédients: caséinate de sodium, cacao, sel.',
+  (r, t) => {
+    t.flagged(r, 'yellow', 'Sodium caseinate');
+    t.notAnywhere(r, 'Milk');
+  }
+);
+
+test(
+  'protéines de lait is milk protein, not plain milk',
+  'Ingrédients: protéines de lait, cacao, sel.',
+  (r, t) => {
+    t.verdict(r, 'yellow');
+    t.flagged(r, 'yellow', 'Milk protein');
+    t.notAnywhere(r, 'Milk');
+  }
+);
+
+test(
+  'E422 glycerol is green; E965 maltitol is red',
+  'Ingrédients: riz, E422, E965, sel.',
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Maltitol (E965)');
+    t.flagged(r, 'green', 'Glycerol (E422)');
+    t.notAnywhere(r, 'Sorbitol (E420)');
+  }
+);
+
+test(
+  'E-numbers with a space still match (E 422 vs E 965)',
+  'Ingrédients: riz, E 422, E 965, sel.',
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Maltitol (E965)');
+    t.flagged(r, 'green', 'Glycerol (E422)');
+  }
+);
+
+test(
+  'pectin E440, locust bean E410 and lecithin E322 are green',
+  'Ingrédients: pectine, farine de graines de caroube, E322, riz, sel.',
+  (r, t) => {
+    t.verdict(r, 'green');
+    t.flagged(r, 'green', 'Pectin');
+    t.flagged(r, 'green', 'Locust bean gum');
+    t.flagged(r, 'green', 'Lecithin (E322)');
+  }
+);
+
+test(
+  'Molkenpermeat is whey permeate, not just whey',
+  'Zutaten: Reis, Molkenpermeat, Kakao, Salz.',
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Whey permeate');
+  }
+);
+
+test(
+  'dried vegetables stay yellow, never auto-green',
+  'Ingrédients: riz, sel, légumes déshydratés, huile de tournesol.',
+  (r, t) => {
+    t.verdict(r, 'yellow');
+    t.flagged(r, 'yellow', 'Dried vegetables');
+  }
+);
+
+test(
+  'Trockengemüse stays yellow in German',
+  'Zutaten: Reis, Salz, Trockengemüse, Sonnenblumenöl.',
+  (r, t) => {
+    t.verdict(r, 'yellow');
+    t.flagged(r, 'yellow', 'Dried vegetables');
+  }
+);
+
+test(
+  'Aromen (German plural) is yellow flavouring',
+  'Zutaten: Reis, Salz, Aromen.',
+  (r, t) => {
+    t.verdict(r, 'yellow');
+    t.flagged(r, 'yellow', 'Flavourings');
+  }
+);
+
+test(
+  'condiment stays yellow, never green',
+  'Ingrédients: riz, sel, condiment en poudre, huile de colza.',
+  (r, t) => {
+    t.verdict(r, 'yellow');
+    t.flagged(r, 'yellow', 'Seasoning powder');
+  }
+);
+
+test(
+  'ciboulette is chives, not spring onion',
+  'Ingrédients: ciboulette, sel, huile de tournesol, riz.',
+  (r, t) => {
+    t.verdict(r, 'green');
+    t.flagged(r, 'green', 'Chives');
+    t.notAnywhere(r, 'Spring onion');
+    t.notAnywhere(r, 'Garlic');
+  }
+);
+
+test(
+  'Schnittlauch is chives, not leek',
+  'Zutaten: Reis, Salz, Schnittlauch, Sonnenblumenöl.',
+  (r, t) => {
+    t.verdict(r, 'green');
+    t.flagged(r, 'green', 'Chives');
+    t.notAnywhere(r, 'Leek');
+  }
+);
+
+test(
+  'poireaux is leek, not pear (French -x plural)',
+  'Ingrédients: poireaux, carotte, sel, eau.',
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Leek');
+    t.notAnywhere(r, 'Pear');
+  }
+);
+
+test(
+  'date syrup is red, not just date',
+  'Ingrédients: sirop de datte, cacao, sel.',
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Date syrup');
+  }
+);
+
+test(
+  'collision shield: pomme de terre, laitue, Milchsäure, volaille',
+  `Ingrédients: pommes de terre, laitue, viande de volaille, sel.
+   Zutaten: Kartoffeln, Milchsäure, Salz.`,
+  (r, t) => {
+    t.verdict(r, 'green');
+    t.notAnywhere(r, 'Apple');
+    t.notAnywhere(r, 'Milk');
+    t.notAnywhere(r, 'Garlic');
+    t.flagged(r, 'green', 'Potato');
+    t.flagged(r, 'green', 'Lettuce');
+    t.flagged(r, 'green', 'Lactic acid');
+    t.flagged(r, 'green', 'Poultry');
+  }
+);
+
+test(
+  'OFF fixture — CH sandwich bread with glycerol (anonymised wording)',
+  'Ingrédients: farine de blé, eau, stabilisant (glycérol), huile de tournesol, sel.',
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Wheat flour');
+    t.flagged(r, 'green', 'Glycerol');
+    t.flagged(r, 'green', 'Sunflower oil');
+  }
+);
+
+test(
+  'OFF fixture — savoury mix with onion juice concentrate (anonymised wording)',
+  "Ingrédients: maltodextrine, extrait de levure, concentré de jus d'oignon, persil, sel comestible iodé.",
+  (r, t) => {
+    t.verdict(r, 'red');
+    t.flagged(r, 'red', 'Onion juice concentrate');
+    t.flagged(r, 'yellow', 'Yeast extract');
+    t.flagged(r, 'green', 'Maltodextrin');
+    t.flagged(r, 'green', 'Parsley');
   }
 );
 
