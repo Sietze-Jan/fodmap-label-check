@@ -1,0 +1,358 @@
+/* =====================================================================
+ * tokens.css — THE DESIGN TOKENS. Nothing else.
+ * =====================================================================
+ *
+ * Every value here was sampled programmatically from the three reference
+ * images in `Style refferences/` (pixel histograms, edge profiles and 3x
+ * corner crops). Where a value had to be designed rather than sampled —
+ * the red, the not-recognised grey, the whole dark mode — it says so on
+ * the line. `design/tokens.md` is the platform-neutral record of where
+ * each number came from, and is what a future SwiftUI port transcribes.
+ *
+ * TWO RULES:
+ *   1. This file contains tokens only. No component selectors, ever.
+ *   2. No component may use a colour literal. If a component needs a
+ *      colour that is not here, add it here first.
+ *
+ * Names are flat `category-role` so they transcribe unchanged into a
+ * SwiftUI enum: --color-text-primary  ->  Color.Text.primary.
+ *
+ * Load order matters: this file must be linked before styles.css.
+ * ===================================================================== */
+
+:root {
+  /* ===================================================================
+   * BRAND
+   * Ref 3 is 38.9% olive by pixel count — it is the canvas, not an accent.
+   * =================================================================== */
+  --color-brand-olive:        #91A95A;  /* primary canvas green */
+  --color-brand-lime:         #91BF22;  /* vivid accent */
+  --color-brand-lime-button:  #92C323;  /* shutter / CTA circle */
+  --color-brand-green-mid:    #8BC952;  /* score badge */
+  --color-brand-green-soft:   #8CC570;  /* selected-card ring */
+  --color-brand-green-deep:   #265311;  /* icon strokes on light green */
+  --color-brand-green-dark:   #587519;  /* gradient terminus */
+
+  /* Gradients are tokens too: a component that hand-rolls one has
+   * smuggled in two colour literals. */
+  --gradient-hero: linear-gradient(180deg, #91BF22 0%, #587519 100%);
+  --gradient-chat: linear-gradient(120deg, #EEEFBA 0%, #D2E8C5 100%);
+
+  /* ===================================================================
+   * SURFACES
+   * =================================================================== */
+  --color-surface-canvas-olive: #91A95A;  /* same ink as brand olive */
+  --color-surface-page:         #F6F5F8;  /* cool grey page option */
+  --color-surface-cream:        #EDF1E5;  /* warm cream page option */
+  --color-surface-cream-alt:    #EAEEDF;  /* second cream step */
+  --color-surface-card:         #FFFFFF;
+  --color-surface-chip:         #ECF5E7;
+  --color-surface-canvas-sage:  #E7ECDF;
+  --color-surface-scrim:        #BDCB9D;  /* olive under ~55% white */
+
+  /* DECISION 3 — the one line that switches the whole app's background.
+   * --color-surface-cream (warm, matches refs 1+3) or
+   * --color-surface-page (cool grey).
+   * Whatever this resolves to must also be the literal in the
+   * `theme-color` meta in index.html and in manifest.webmanifest, which
+   * cannot read custom properties. Currently: #EDF1E5. */
+  --color-surface-page-default: var(--color-surface-cream);
+
+  /* ===================================================================
+   * TEXT — ONE neutral grey ramp, used on every surface.
+   * The greenish greys sampled on cream (#5D6156 and friends) are WebP
+   * compression artefacts, not design intent. Do not reintroduce them as
+   * per-surface text colours.
+   * =================================================================== */
+  --color-text-primary:      #000000;  /* glyph cores are genuinely pure black */
+  --color-text-secondary:    #666666;
+  --color-text-tertiary:     #8E8F91;
+  --color-text-on-dark:      #FFFFFF;
+  --color-text-lime-on-dark: #C9E066;
+
+  /* ===================================================================
+   * NEAR-BLACKS — three values doing three different jobs. The
+   * difference is deliberate and visible; do not collapse them.
+   * =================================================================== */
+  --color-ink-button: #232830;  /* blue-tinted slate, NOT black — button fill */
+  --color-ink-pill:   #000000;  /* badge pills */
+  --color-ink-chip:   #141316;
+
+  /* ===================================================================
+   * SEMANTIC — the traffic light. The most important colours in the app:
+   * they are the answer the user came for, read at arm's length under
+   * supermarket lighting.
+   * =================================================================== */
+
+  /* PENDING USER DECISION 1 — red does not exist anywhere in the
+   * references; nothing in them is a warning. #E5484D is the red already
+   * shipping in this codebase. The alternative under consideration is
+   * #D9463C (desaturated brick, sits better next to olive). Switching is
+   * this one line. */
+  --color-semantic-red:          #E5484D;
+
+  --color-semantic-orange:       #E68617;  /* exact: 57px plateau, Sugar bar */
+  --color-semantic-amber:        #EEB237;
+  --color-semantic-yellow:       #EBDE4E;  /* exact */
+  --color-semantic-green:        #90C077;  /* exact */
+  --color-semantic-green-vivid:  #85CF3B;
+  --color-semantic-blue:         #4BA0EC;
+  --color-semantic-track:        #D5D7D4;  /* exact: unfilled progress bar */
+  --color-semantic-unknown:      #8E8F91;  /* designed: no unknown state in refs */
+
+  /* Tinted pairs, for cards and rows filled with a verdict colour.
+   * Each is its semantic colour at 12% over --color-surface-card. */
+  --color-semantic-red-bg:          #FCE9EA;
+  --color-semantic-orange-bg:       #FCF0E3;
+  --color-semantic-amber-bg:        #FDF6E7;
+  --color-semantic-yellow-bg:       #FDFBEA;
+  --color-semantic-green-bg:        #F2F7EF;
+  --color-semantic-green-vivid-bg:  #F0F9E8;
+  --color-semantic-blue-bg:         #E9F4FD;
+  --color-semantic-unknown-bg:      #F1F2F2;
+
+  /* Scanner viewfinder corner brackets, ref 1. */
+  --color-scanner-bracket: #B0D05E;
+
+  /* ===================================================================
+   * TYPE
+   * Every measured element in the references landed within ±1.1pt of a
+   * stock iOS size, so this IS the native scale — no custom ramp. The
+   * -apple-system stack resolves to SF Pro on the target device, which is
+   * why there is no web font (and why there is no build step to add one).
+   * Nothing in the references is Light or Thin.
+   *
+   * 1pt ≈ 1px here, and rem is relative to a 16px root, so
+   * 17pt = 1.0625rem.
+   * =================================================================== */
+  --type-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+
+  --type-weight-regular:  400;
+  --type-weight-semibold: 600;
+  --type-weight-bold:     700;
+
+  --type-display-size:        4rem;       /* 64pt */
+  --type-display-weight:      700;
+  --type-display-line:        1.05;
+
+  --type-display-s-size:      2.5rem;     /* 40pt */
+  --type-display-s-weight:    700;
+  --type-display-s-line:      1.1;
+
+  --type-large-title-size:    2.125rem;   /* 34pt */
+  --type-large-title-weight:  700;
+  --type-large-title-line:    1.15;
+
+  --type-title1-size:         1.75rem;    /* 28pt */
+  --type-title1-weight:       700;
+  --type-title1-line:         1.2;
+
+  --type-title2-size:         1.375rem;   /* 22pt */
+  --type-title2-weight:       700;
+  --type-title2-line:         1.25;
+
+  --type-title3-size:         1.25rem;    /* 20pt */
+  --type-title3-weight:       600;
+  --type-title3-line:         1.25;
+
+  --type-headline-size:       1.0625rem;  /* 17pt */
+  --type-headline-weight:     600;
+  --type-headline-line:       1.3;
+
+  --type-body-size:           1.0625rem;  /* 17pt */
+  --type-body-weight:         400;
+  --type-body-line:           1.45;
+
+  --type-callout-size:        1rem;       /* 16pt */
+  --type-callout-weight:      400;
+  --type-callout-line:        1.4;
+
+  --type-subhead-size:        0.9375rem;  /* 15pt */
+  --type-subhead-weight:      400;
+  --type-subhead-weight-strong: 600;      /* the Semibold variant in ref 2 */
+  --type-subhead-line:        1.4;
+
+  --type-footnote-size:       0.8125rem;  /* 13pt */
+  --type-footnote-weight:     400;
+  --type-footnote-line:       1.35;
+
+  --type-caption1-size:       0.75rem;    /* 12pt */
+  --type-caption1-weight:     400;
+  --type-caption1-line:       1.3;
+
+  --type-caption2-size:       0.6875rem;  /* 11pt */
+  --type-caption2-weight:     600;
+  --type-caption2-line:       1.25;
+
+  /* MUST stay >= 16px (1rem). iOS Safari zooms the viewport in when a
+   * text field smaller than 16px takes focus, and the zoom does not come
+   * back out — which wrecks a one-handed scan in an aisle. This is the
+   * only token in the file with a hard floor, so .scanner__input uses
+   * this and never a type-role token that might later be tuned below
+   * 16px. Was the bare `font-size: 1rem` comment at styles.css:90. */
+  --type-input-size: 1rem;
+  --type-input-line: 1.45;
+
+  /* ===================================================================
+   * SPACING — 4pt base. The measured anchors in the references were
+   * 20 / 24 / 32 / 60pt, which is why those steps are called out.
+   * =================================================================== */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;   /* measured: button horizontal inset */
+  --space-6:  24px;   /* measured: card inset from screen edge */
+  --space-8:  32px;   /* measured: sheet content padding */
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Primary button measured 61.4pt tall in ref 1 — far more generous than
+   * the 52px this app shipped with, and the right call for a glove-and-
+   * trolley target. --control-height-min is Apple's HIG floor and is the
+   * smallest any interactive element may be. */
+  --control-height-primary: 60px;
+  --control-height-min:     44px;
+
+  /* ===================================================================
+   * RADIUS
+   * Buttons, chips, badges and progress bars are ALL full pills in the
+   * references — 3x corner crops show unambiguous stadiums, radius =
+   * height / 2. Not "very rounded rectangles".
+   * =================================================================== */
+  --radius-xs:    8px;
+  --radius-sm:    12px;
+  --radius-md:    16px;
+  --radius-lg:    20px;
+  --radius-xl:    28px;
+  --radius-sheet: 32px;
+  --radius-pill:  9999px;
+
+  /* DECISION 2 — components reference ONLY the aliases below, so the
+   * generous/tight question is answered by editing these five lines and
+   * nothing else.
+   *
+   * GENEROUS (current — refs 1 + 3): card lg/xl, sheet 32.
+   * TIGHT (ref 2): --radius-card: var(--radius-xs);
+   *                --radius-card-lg: var(--radius-sm);
+   *                --radius-surface-sheet: var(--radius-md);
+   * Pills stay pills either way; both reference systems agree on that. */
+  --radius-card:          var(--radius-lg);
+  --radius-card-lg:       var(--radius-xl);
+  --radius-surface-sheet: var(--radius-sheet);
+  --radius-input:         var(--radius-md);
+  --radius-control:       var(--radius-pill);
+  --radius-chip:          var(--radius-pill);
+
+  /* ===================================================================
+   * ELEVATION
+   * The references contain essentially NO drop shadows. Every card edge
+   * profiled transitioned in 2–4px, i.e. pure antialiasing. Separation
+   * comes from surface-colour contrast, and the one "featured" card uses
+   * a coloured RING, not a shadow.
+   *
+   * --elevation-0 IS THE DEFAULT FOR EVERYTHING. A shadow is the
+   * exception and needs a reason. Reach for --elevation-1 only where
+   * white genuinely sits on white, and --elevation-2 only for something
+   * floating over content (a modal or a sheet).
+   * =================================================================== */
+  --elevation-0:     none;
+  --elevation-1:     0 1px 3px rgba(35, 40, 48, 0.05);
+  --elevation-2:     0 4px 16px rgba(35, 40, 48, 0.08);
+  --elevation-focus: 0 0 0 3px var(--color-brand-green-soft);  /* the refs' actual "elevated" */
+
+  /* ===================================================================
+   * BORDERS
+   * No hairline dividers exist anywhere in the references. Lists are
+   * delimited by whitespace and card edges alone.
+   * =================================================================== */
+  --color-border-selected: #8CC570;              /* = brand green-soft */
+  --color-border-hairline: rgba(35, 40, 48, 0.08);
+
+  --border-width-selected: 3px;                  /* measured 8px at collage scale */
+  --border-selected: var(--border-width-selected) solid var(--color-border-selected);
+
+  /* Provided for completeness. Near-zero use is expected: if you are
+   * reaching for this, a surface-colour change or a whitespace change is
+   * almost certainly the intended answer. */
+  --border-hairline: 1px solid var(--color-border-hairline);
+}
+
+/* =====================================================================
+ * DARK MODE
+ * The design system is light-first: the references are all light, so
+ * every value below is DESIGNED, not sampled. Colour tokens only — the
+ * type scale, spacing, radii and control heights do not change in the
+ * dark, because the hand holding the phone does not.
+ * ===================================================================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Brand: the same hues, dimmed so they do not glow on a dark page. */
+    --color-brand-olive:        #6E8143;
+    --color-brand-lime:         #A7D42F;
+    --color-brand-lime-button:  #A8D830;
+    --color-brand-green-mid:    #79B345;
+    --color-brand-green-soft:   #7FB765;
+    --color-brand-green-deep:   #CDE8A3;  /* inverted: strokes now sit on dark */
+    --color-brand-green-dark:   #425713;
+
+    --gradient-hero: linear-gradient(180deg, #6D8F1A 0%, #425713 100%);
+    --gradient-chat: linear-gradient(120deg, #2A2C1F 0%, #1E2A20 100%);
+
+    /* Surfaces: page stays the #14161A this app already used, which is
+     * also what the existing PNG app icons were drawn against. */
+    --color-surface-canvas-olive: #46522C;
+    --color-surface-page:         #14161A;
+    --color-surface-cream:        #171A15;
+    --color-surface-cream-alt:    #1C1F19;
+    --color-surface-card:         #1E2128;
+    --color-surface-chip:         #20291C;
+    --color-surface-canvas-sage:  #1C211A;
+    --color-surface-scrim:        #2A3120;
+
+    /* Text: the same single neutral ramp, inverted. */
+    --color-text-primary:      #F6F5F8;
+    --color-text-secondary:    #A9ABAF;
+    --color-text-tertiary:     #7C7E82;
+    --color-text-on-dark:      #FFFFFF;
+    --color-text-lime-on-dark: #C9E066;
+
+    /* Near-blacks cannot stay near-black on a near-black page. Each is
+     * lifted just far enough to read as a distinct object, keeping the
+     * slate/neutral/warm distinction between the three. */
+    --color-ink-button: #2C323C;
+    --color-ink-pill:   #000000;
+    --color-ink-chip:   #24232A;
+
+    /* Semantic: lifted for contrast against a dark page. Hue held. */
+    --color-semantic-red:         #FF6369;  /* tracks DECISION 1 */
+    --color-semantic-orange:      #F59B2B;
+    --color-semantic-amber:       #F2BE4C;
+    --color-semantic-yellow:      #EFE469;
+    --color-semantic-green:       #A5D189;
+    --color-semantic-green-vivid: #9BDD58;
+    --color-semantic-blue:        #6FB6F2;
+    --color-semantic-track:       #3A3F45;
+    --color-semantic-unknown:     #9EA0A4;
+
+    /* Tints: each semantic colour at 18% over the dark page. */
+    --color-semantic-red-bg:          #3A1F23;
+    --color-semantic-orange-bg:       #3A2A19;
+    --color-semantic-amber-bg:        #3B321F;
+    --color-semantic-yellow-bg:       #3B3A23;
+    --color-semantic-green-bg:        #2A352B;
+    --color-semantic-green-vivid-bg:  #283720;
+    --color-semantic-blue-bg:         #1E2F40;
+    --color-semantic-unknown-bg:      #2A2C2F;
+
+    --color-scanner-bracket: #B0D05E;
+
+    /* Shadows have to be black rather than slate to register at all on a
+     * dark page. --elevation-0 is still the default. */
+    --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.40);
+    --elevation-2: 0 4px 16px rgba(0, 0, 0, 0.50);
+
+    --color-border-selected: #7FB765;
+    --color-border-hairline: rgba(255, 255, 255, 0.10);
+  }
+}

@@ -13,12 +13,53 @@ mostly missing from barcode databases, and reading the label works on any
 product in any country, including cross-border shops in Ferney-Voltaire or
 Annemasse.
 
-No API keys, no accounts, no per-scan costs, no network calls. All the analysis
-happens on the phone.
+No API keys, no accounts, no per-scan costs. All the analysis happens on the
+phone, and no photo or label text is ever uploaded anywhere.
 
 ---
 
-## How it works
+## Three ways to get text in
+
+| | Accuracy | Speed | Setup |
+| --- | --- | --- | --- |
+| **Scan a label** (the green button) | good | 2–5s per scan | none |
+| **iOS Shortcut** | best | fastest | ten minutes, once |
+| **Type or paste** | perfect | slow | none |
+
+All three end up in the same place: the text lands in the box, `analyse()` reads
+it, and the traffic light renders. Nothing about the verdict depends on where
+the text came from.
+
+### 1. The camera button
+
+Tap **Scan a label**, photograph the ingredient list, and the page reads it
+itself using [Tesseract.js](https://tesseract.projectnaptha.com/) — an OCR
+engine compiled to WebAssembly that runs inside the browser. The photo never
+leaves the phone.
+
+`<input type="file" accept="image/*" capture="environment">` is what opens the
+rear camera directly on iOS, in Apple's own camera UI. The second button drops
+the `capture` attribute, so it opens the photo library instead — useful for
+photographing a label in the shop and deciding about it later.
+
+**The first scan is slow.** Tesseract is not bundled with the app; it is
+downloaded the first time the camera is used, and it is about **4.8 MB** (1.5 MB
+of engine, 3.3 MB of French and English language data). The button shows a
+separate "Preparing text recognition…" progress bar for that phase, so the wait
+is at least explicable. After that first scan the engine lives in the service
+worker cache and the language data in IndexedDB, so later scans take a couple of
+seconds and **work with no signal at all** — which matters, because supermarkets
+are concrete boxes.
+
+**Whatever the camera reads goes into the text box**, right or wrong. If OCR
+turns *oignon* into *oignen*, that is visible and fixable — correct it and tap
+Check again. An answer you cannot audit is worse than a transcription you can.
+
+**A bad photo can never produce a green verdict.** Text that comes back too
+short or too garbled to be a plausible ingredient list is routed to the grey
+"can't read the label" state instead of a colour.
+
+### 2. The iOS Shortcut — still the most accurate
 
 ```
 iOS Shortcut                          This web page
@@ -31,13 +72,38 @@ iOS Shortcut                          This web page
 └──────────────────────────┘          └────────────────────────────┘
 ```
 
-Apple's built-in **Extract Text from Image** does the OCR. It is free, runs
-on-device, needs no OCR service, and is far better than anything a browser can
-do on 6-point type printed on shiny curved plastic.
+Apple's **Extract Text from Image** is a better OCR engine than Tesseract, and
+the gap is widest on exactly the hard cases: 6-point type, curved foil, glare,
+low contrast. It also has nothing to download and is one squeeze of the Action
+Button away. [Building it](#building-the-ios-shortcut) takes about ten minutes
+and is still worth doing. Think of the camera button as what makes the page
+work on its own — on a borrowed phone, on a laptop, or before the Shortcut
+exists.
 
 The text travels in the URL **fragment** (`#t=...`), never the query string.
 Fragments are not sent to the server, so label text never leaves the phone even
 though the page is hosted publicly.
+
+### Changing the OCR languages
+
+One line, at the top of `js/ocr.js`:
+
+```js
+export const OCR_LANGUAGES = 'fra+eng';
+```
+
+French is primary because the shopping happens in Geneva. Every added language
+is another file downloaded on first use, and they are not small — gzipped:
+`fra` 0.7 MB, `ita` 0.9 MB, `deu` 1.3 MB, `eng` 3.0 MB. Adding all four would
+roughly double the first-run download for very little gain on French labels, so
+the default is deliberately just two.
+
+To read German panels too: `'fra+deu+eng'`. To make the first run three
+megabytes lighter: `'fra'` — worth considering, since English is rare on Swiss
+packaging and it is by far the biggest file here.
+
+Nothing else needs changing. The analyser understands all four languages
+whatever OCR was told to expect, and the Shortcut path is unaffected.
 
 ---
 
@@ -203,8 +269,13 @@ Then rename it to **FODMAP** and give it the traffic-light icon.
 
 ### Without the Shortcut
 
-The page works on its own. Tap the text box, long-press, and choose **Scan
-Text** to read the label with the camera using iOS's built-in OCR.
+The page works on its own — tap **Scan a label** and photograph the ingredient
+list. See [the camera button](#1-the-camera-button) above.
+
+(An earlier version of this README suggested long-pressing the text box and
+choosing iOS's **Scan Text**. That callout does not reliably appear — you
+usually get the ordinary copy/paste menu instead — which is why the camera
+button exists.)
 
 ---
 
@@ -217,6 +288,11 @@ js/ingredients.js        ← THE INGREDIENT TABLE. Edit this one.
 js/analyse.js            normalisation + matching. Pure, no DOM, testable.
 js/render.js             the only file that touches the DOM
 js/app.js                wiring: reads #t=, calls analyse, calls render
+
+js/capture.js            the camera path: buttons, progress, error states
+js/image-prep.js         resize / greyscale / contrast, on a canvas
+js/ocr.js                lazy-loads Tesseract.js — languages are set here
+
 test/test.js             plain-node test suite, no dependencies
 sw.js                    offline cache — bump CACHE_VERSION when you edit
 manifest.webmanifest     home-screen metadata
@@ -225,6 +301,25 @@ icons/                   generated traffic-light PNGs
 
 The split matters: `analyse.js` has no DOM access, which is why the tests can
 import it directly under `node` with no jsdom and no bundler.
+
+The three camera files are equally deliberate. `capture.js` owns everything the
+user sees and hands plain text to the same `analyse()` the textarea uses, so the
+OCR path cannot develop its own idea of what counts as a verdict.
+`image-prep.js` is isolated because it is the part most worth tuning — its four
+constants are the accuracy knobs. `ocr.js` is isolated because it is the only
+file that touches the network.
+
+### Caching the OCR engine
+
+`sw.js` keeps the Tesseract assets in a **second cache** (`fodmap-ocr-v1`),
+separate from the app's own. They are cached on first use, never precached:
+5 MB fetched during service-worker install would delay every first visit,
+including visits from someone who only ever pastes text, and one failed request
+would take the whole offline mode down with it. Keeping them in their own cache
+also means shipping a new version of the app does not throw the megabytes away —
+`CACHE_VERSION` bumps leave `fodmap-ocr-v1` alone.
+
+To force a re-download: `caches.delete('fodmap-ocr-v1')` in the console.
 
 ---
 
@@ -267,6 +362,24 @@ in Monash* — that is the workflow, not a failure.
 
 **Recipes change.** Scan the actual ingredient list each time rather than
 trusting a remembered verdict.
+
+**In-browser OCR is the weakest link in the camera path.** Tesseract is good at
+flat, matte, well-lit, reasonably large print, and noticeably worse at what
+supermarket packaging actually is: 6-point type, curved foil, cling film,
+gradient backgrounds, colour-on-colour printing. `js/image-prep.js` recovers a
+lot of that — it downscales, converts to greyscale and stretches the contrast
+before Tesseract sees anything — but it cannot rescue a photo that is blurred or
+half in shadow.
+
+What protects you is not OCR accuracy but the fact that a garbled read is
+*visible*: the transcription lands in the text box next to the verdict. Read it.
+If it does not look like the packet, it is not a verdict, it is noise. The
+grey "can't read the label" state catches the worst cases automatically, and the
+"Not recognised" bucket catches the rest by refusing to call an unknown word
+safe.
+
+If a particular product reads badly every time, that is the case for the
+Shortcut, not for more constants in `image-prep.js`.
 
 **This is a shopping aid, not a medical guarantee.** It is for reducing the
 twenty-minute stall in the cereal aisle. A dietitian outranks all of it.

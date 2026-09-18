@@ -126,6 +126,160 @@ html, body {
   border-color: var(--border);
 }
 
+/* --------------------------------------------------------------- capture
+ *
+ * The camera call to action, its quiet library twin, and the progress
+ * panel they share.
+ *
+ * COLOURS: this file still carries its own local palette (the design
+ * system in css/tokens.css is mid-migration and styles.css has not been
+ * moved over yet), so everything structural below uses the local vars
+ * like the rest of the file. The one genuinely new colour — the CTA
+ * fill — is taken from tokens.css rather than invented here, because a
+ * new literal would be one more thing to find and delete later.
+ *
+ * The pairing is --color-brand-lime-button over --color-ink-pill, and
+ * the choice of ink is deliberate. The obvious partner for the lime fill
+ * is --color-brand-green-deep, which is what components.css uses, but
+ * that token inverts to a pale green under prefers-color-scheme: dark
+ * while the lime stays bright — correct on the token system's light
+ * page, illegible here, because this stylesheet's default state is dark
+ * and its light theme is the media query. --color-ink-pill is #000000 in
+ * both schemes, so black-on-lime holds either way. When styles.css is
+ * migrated onto the token system this can go back to the standard pair.
+ * ------------------------------------------------------------------- */
+
+.capture {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Hidden, but still focusable-by-proxy and still in the layout flow at
+ * 1px: display:none on a file input stops .click() working in some
+ * browsers, and that is the entire mechanism here. */
+.capture__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+}
+
+.button--capture,
+.button--quiet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex: none;            /* .button sets flex:1, which stretches in a column */
+  width: 100%;
+}
+
+.button--capture {
+  min-height: var(--control-height-primary, 60px);
+  background: var(--color-brand-lime-button);
+  color: var(--color-ink-pill);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.button--capture:active { filter: brightness(0.92); }
+.button--capture:disabled { opacity: 0.5; }
+
+.button--quiet {
+  min-height: 44px;      /* HIG floor: still a thumb target, just a calm one */
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.button--quiet:active { color: var(--text); }
+.button--quiet:disabled { opacity: 0.5; }
+
+/* -- the progress / error panel -------------------------------------- */
+
+.capture__status {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  margin-top: 4px;
+  background: var(--surface-raised);
+  border-radius: 10px;
+}
+
+/* The `hidden` attribute has to be restated for anything this file gives
+ * a display value to. `[hidden] { display: none }` comes from the UA
+ * stylesheet, and any author `display` rule outranks it — without this
+ * the panel sits there spinning at an empty progress bar before the
+ * first scan and never goes away after one. */
+.capture__status[hidden],
+.capture__spinner[hidden] { display: none; }
+
+.capture__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.capture__spinner {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--text-dim);
+}
+
+.capture__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.capture__note {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.capture__bar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.capture__bar-fill {
+  height: 100%;
+  width: 0;
+  background: var(--color-brand-lime-button);
+  border-radius: 999px;
+  transition: width 200ms ease;
+}
+
+/* A failed scan is a dead end, not a warning: it gets the amber edge and
+ * no progress bar, and it stays up until the next scan or Clear. */
+.capture__status--error {
+  background: var(--yellow-bg);
+  border-left: 4px solid var(--yellow);
+}
+
+.capture__status--error .capture__title {
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capture__bar-fill { transition: none; }
+}
+
 /* --------------------------------------------------------------- results */
 
 .results { margin-top: 20px; }

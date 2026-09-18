@@ -13,6 +13,7 @@
 
 import { analyse } from './analyse.js';
 import { render } from './render.js';
+import { initCapture } from './capture.js';
 
 const input = document.querySelector('#label-text');
 const form = document.querySelector('#scan-form');
@@ -36,6 +37,19 @@ function readFragment() {
   }
 }
 
+/* The camera path. It fills the textarea itself so the transcription is
+ * visible and correctable, then hands the text back here to go through
+ * exactly the same analyse()/render() pair as typed text. */
+const capture = initCapture({
+  cameraButton: document.querySelector('#capture-camera'),
+  libraryButton: document.querySelector('#capture-library'),
+  cameraInput: document.querySelector('#capture-camera-input'),
+  libraryInput: document.querySelector('#capture-library-input'),
+  statusHost: document.querySelector('#capture-status'),
+  textarea: input,
+  onText: run,
+});
+
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   input.blur();
@@ -46,6 +60,7 @@ clearButton.addEventListener('click', () => {
   input.value = '';
   results.hidden = true;
   results.textContent = '';
+  capture.reset();
   if (window.location.hash) {
     history.replaceState(null, '', window.location.pathname);
   }

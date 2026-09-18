@@ -5,13 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>FODMAP Label Check</title>
   <meta name="description" content="Point-and-scan FODMAP traffic light for Swiss food labels.">
-  <meta name="theme-color" content="#14161a">
+  <!-- Must match --color-surface-page-default in css/tokens.css. Meta tags
+       cannot read custom properties, so this literal is the one place the
+       page background is duplicated. Currently cream. -->
+  <meta name="theme-color" content="#EDF1E5">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- `default` = dark status-bar glyphs, which is what a light page needs.
+       `black-translucent` draws light glyphs over the content. -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="FODMAP">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <link rel="icon" href="./icons/icon-192.png">
+  <!-- Two plain <link> tags, in this order, never @import: @import hides
+       styles.css from the browser until tokens.css has been parsed, and the
+       service worker has to cache the subresource either way. -->
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/icons.css">
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
@@ -23,12 +33,43 @@
     </header>
 
     <form id="scan-form" class="scanner">
+
+      <!-- The camera path. `capture="environment"` is what makes iOS
+           Safari open the rear camera directly instead of an action
+           sheet; the second input omits it so it opens the library.
+           Both inputs are hidden and clicked by the buttons, because a
+           file input cannot be styled into a 60px CTA. -->
+      <div class="capture">
+        <button type="button" id="capture-camera" class="button button--capture">
+          <span>Scan a label</span>
+        </button>
+        <button type="button" id="capture-library" class="button button--quiet">
+          <span>Use a photo I already took</span>
+        </button>
+        <input
+          type="file"
+          id="capture-camera-input"
+          class="capture__file"
+          accept="image/*"
+          capture="environment"
+          tabindex="-1"
+          aria-hidden="true">
+        <input
+          type="file"
+          id="capture-library-input"
+          class="capture__file"
+          accept="image/*"
+          tabindex="-1"
+          aria-hidden="true">
+        <div id="capture-status" class="capture__status" role="status" aria-live="polite" hidden></div>
+      </div>
+
       <label class="scanner__label" for="label-text">Ingredient list</label>
       <textarea
         id="label-text"
         class="scanner__input"
         rows="5"
-        placeholder="Tap here, then long-press and choose Scan Text to read the label with the camera — or paste the ingredients."
+        placeholder="Scan a label above, or paste the ingredients here. Text read from a photo lands here too, so you can fix anything the camera misread."
         autocapitalize="off"
         autocorrect="off"
         spellcheck="false"></textarea>
@@ -43,13 +84,17 @@
     <details class="help">
       <summary class="help__summary">How to use this</summary>
       <div class="help__body">
-        <p><strong>Fastest way:</strong> use the “FODMAP” Shortcut. Tap it (or your
+        <p><strong>Tap “Scan a label”</strong> to photograph the ingredient list.
+          The first scan downloads the text recogniser, which takes a moment on
+          mobile data; after that it works offline.</p>
+        <p><strong>Most accurate:</strong> the “FODMAP” Shortcut. Tap it (or your
           Action Button), photograph the ingredient list, and the result opens here
-          automatically.</p>
-        <p><strong>Without the Shortcut:</strong> tap the box above, long-press, and
-          choose <em>Scan Text</em> to read the label with the camera.</p>
+          automatically. It uses Apple’s own text recognition, which reads small
+          print on shiny packets better than anything in a browser.</p>
         <p>Photograph the ingredient list on the <em>back</em> of the pack, not the
           front. Get close, keep the label flat, and use good light.</p>
+        <p>Whatever the camera reads appears in the box above. If a word came out
+          wrong, fix it and tap <em>Check</em> again.</p>
       </div>
     </details>
 
