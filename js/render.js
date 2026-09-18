@@ -27,25 +27,22 @@ const VERDICTS = {
     caption: 'Avoid',
     captionClass: 'ds-text-red',
     title: 'Avoid',
-    subtitle: 'Contains high-FODMAP ingredients',
   },
   yellow: {
     className: 'ds-verdict--amber',
     icon: 'warning-triangle',
     gauge: 'amber',
-    caption: 'Portion',
-    captionClass: '',
-    title: 'Check the portion',
-    subtitle: 'Nothing clearly high, but some ingredients depend on quantity',
+    caption: 'Limit',
+    captionClass: 'ds-text-amber',
+    title: 'Limit',
   },
   green: {
     className: 'ds-verdict--green',
     icon: 'check',
     gauge: 'green',
-    caption: 'Fine',
+    caption: 'Eat',
     captionClass: 'ds-text-green',
-    title: 'Looks fine',
-    subtitle: 'No high-FODMAP ingredients recognised',
+    title: 'Eat',
   },
   unknown: {
     className: 'ds-verdict--unknown',
@@ -59,6 +56,26 @@ const VERDICTS = {
   },
 };
 
+const COUNT_BUCKETS = [
+  { key: 'red', label: 'Avoid', className: 'ds-text-red' },
+  { key: 'yellow', label: 'Limit', className: 'ds-text-amber' },
+  { key: 'green', label: 'Eat', className: 'ds-text-green' },
+  { key: 'unrecognised', label: 'Unknown', className: 'ds-text-unknown', optional: true },
+];
+
+/* Plain-text form of the score-card subtitle. Always includes Avoid /
+ * Limit / Eat — even at 0 — and appends Unknown only when that bucket
+ * is non-empty. Unreadable results never call this. */
+export function bucketCountSubtitle(result) {
+  const parts = [];
+  for (const bucket of COUNT_BUCKETS) {
+    const n = result[bucket.key].length;
+    if (bucket.optional && n === 0) continue;
+    parts.push(`${n} ${bucket.label}`);
+  }
+  return parts.join(', ');
+}
+
 /* Small helper so we never build HTML from label text by concatenation. */
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -67,7 +84,21 @@ function el(tag, className, text) {
   return node;
 }
 
-function buildVerdict(spec) {
+function buildCountSubtitle(result) {
+  const p = el('p', 'ds-verdict__subtitle');
+  const visible = COUNT_BUCKETS.filter(
+    (bucket) => !bucket.optional || result[bucket.key].length
+  );
+  visible.forEach((bucket, i) => {
+    if (i) p.appendChild(document.createTextNode(', '));
+    p.appendChild(
+      el('span', bucket.className, `${result[bucket.key].length} ${bucket.label}`)
+    );
+  });
+  return p;
+}
+
+function buildVerdict(spec, subtitleNode) {
   const card = el('div', `ds-verdict ${spec.className}`);
   const iconWrap = el('span', 'ds-verdict__icon');
   iconWrap.appendChild(iconElement(spec.icon, { size: 'md' }));
@@ -75,7 +106,7 @@ function buildVerdict(spec) {
 
   const body = el('div', 'ds-verdict__body');
   body.appendChild(el('p', 'ds-verdict__title', spec.title));
-  body.appendChild(el('p', 'ds-verdict__subtitle', spec.subtitle));
+  body.appendChild(subtitleNode || el('p', 'ds-verdict__subtitle', spec.subtitle));
   card.appendChild(body);
   return card;
 }
@@ -176,7 +207,7 @@ export function render(result, container, opts = {}) {
   }
 
   const spec = VERDICTS[result.verdict];
-  container.appendChild(buildVerdict(spec));
+  container.appendChild(buildVerdict(spec, buildCountSubtitle(result)));
   container.appendChild(buildGauge(spec));
 
   if (result.verdict === 'yellow') {
@@ -201,7 +232,7 @@ export function render(result, container, opts = {}) {
       buildGroup({
         tone: 'red',
         titleClass: 'ds-text-red',
-        heading: 'Triggers',
+        heading: 'Avoid',
         items: result.red,
       })
     );
@@ -212,7 +243,7 @@ export function render(result, container, opts = {}) {
       buildGroup({
         tone: 'amber',
         titleClass: 'ds-text-amber',
-        heading: 'Worth watching',
+        heading: 'Limit',
         items: result.yellow,
         note: 'Moderate, portion-dependent, or a vague term that can hide onion or garlic.',
       })
@@ -224,7 +255,7 @@ export function render(result, container, opts = {}) {
       buildGroup({
         tone: 'green',
         titleClass: 'ds-text-green',
-        heading: 'Fine',
+        heading: 'Eat',
         items: result.green,
       })
     );
@@ -235,7 +266,7 @@ export function render(result, container, opts = {}) {
       buildGroup({
         tone: '',
         titleClass: 'ds-text-unknown',
-        heading: 'Not recognised',
+        heading: 'Unknown',
         items: result.unrecognised,
         note: 'Not in the ingredient list yet — treat as unknown, not as safe.',
       })

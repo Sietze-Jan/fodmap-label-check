@@ -18,6 +18,7 @@
  * ===================================================================== */
 
 import { analyse, normalise, getPreparedEntries } from '../js/analyse.js';
+import { bucketCountSubtitle } from '../js/render.js';
 
 let passed = 0;
 let failed = 0;
@@ -493,6 +494,45 @@ test(
     t.flagged(r, 'red', 'Inulin');
     t.flagged(r, 'red', 'Maltitol');
     t.flagged(r, 'yellow', 'Almond');
+  }
+);
+
+// =====================================================================
+console.log('\nResults header counts');
+// =====================================================================
+
+test(
+  'score-card subtitle lists Avoid, Limit, Eat and Unknown from analyser buckets',
+  `Ingrédients: protéines de lait, inuline, maltitol, cacao, amandes,
+   arôme naturel, sel, E471.`,
+  (r) => {
+    if (!(r.red.length && r.yellow.length && r.green.length && r.unrecognised.length)) {
+      throw new Error(
+        `fixture must fill every bucket; got red=${r.red.length} yellow=${r.yellow.length} green=${r.green.length} unrecognised=${r.unrecognised.length}`
+      );
+    }
+    const expected = `${r.red.length} Avoid, ${r.yellow.length} Limit, ${r.green.length} Eat, ${r.unrecognised.length} Unknown`;
+    const actual = bucketCountSubtitle(r);
+    if (actual !== expected) {
+      throw new Error(`subtitle was "${actual}", expected "${expected}"`);
+    }
+  }
+);
+
+test(
+  'score-card subtitle keeps zero Avoid/Limit and omits empty Unknown',
+  'Ingrédients: riz, eau, huile de tournesol, sel, acide citrique.',
+  (r) => {
+    if (r.red.length || r.yellow.length || r.unrecognised.length) {
+      throw new Error(
+        `fixture should be clean green; got red=${r.red.length} yellow=${r.yellow.length} unrecognised=${r.unrecognised.length}`
+      );
+    }
+    const expected = `0 Avoid, 0 Limit, ${r.green.length} Eat`;
+    const actual = bucketCountSubtitle(r);
+    if (actual !== expected) {
+      throw new Error(`subtitle was "${actual}", expected "${expected}"`);
+    }
   }
 );
 

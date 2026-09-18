@@ -232,7 +232,7 @@ if (initial) {
  * EXPECTED_CACHE must match CACHE_VERSION in sw.js. If an older worker
  * is still installed, drop it and reload so a cached index.html from
  * before the camera UI cannot hide the Scan button. */
-const EXPECTED_CACHE = 'fodmap-v6';
+const EXPECTED_CACHE = 'fodmap-v7';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
