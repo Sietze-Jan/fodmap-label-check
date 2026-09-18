@@ -2,8 +2,9 @@
  * render.js — TURNS AN ANALYSIS RESULT INTO DOM
  * =====================================================================
  *
- * This is the only module that touches the result card. It takes the
- * plain object returned by analyse() and builds design-system markup.
+ * This is the only module that fills the results sheet. It takes the
+ * plain object returned by analyse() and builds design-system markup:
+ * the share gauge first, then grouped ingredient lists.
  *
  * Nothing here decides what is safe to eat — that all lives in
  * ingredients.js and analyse.js. If a verdict looks wrong, fix the data,
@@ -21,35 +22,25 @@ import { gaugeShares } from './gauge.js';
 
 const VERDICTS = {
   red: {
-    className: 'ds-verdict--red',
-    icon: 'close',
     gauge: 'red',
     caption: 'Avoid',
     captionClass: 'ds-text-red',
     title: 'Avoid',
   },
   yellow: {
-    className: 'ds-verdict--amber',
-    icon: 'warning-triangle',
     gauge: 'amber',
     caption: 'Limit',
     captionClass: 'ds-text-amber',
     title: 'Limit',
   },
   green: {
-    className: 'ds-verdict--green',
-    icon: 'check',
     gauge: 'green',
     caption: 'Eat',
     captionClass: 'ds-text-green',
     title: 'Eat',
   },
   unknown: {
-    className: 'ds-verdict--unknown',
-    icon: 'question-circle',
     gauge: 'unknown',
-    caption: 'Unknown',
-    captionClass: 'ds-text-unknown',
     title: 'Can’t read the label',
     subtitle:
       'Take the photo again: closer, flatter, and with more light. Aim at the ingredient list on the back, not the front of the pack.',
@@ -57,15 +48,16 @@ const VERDICTS = {
 };
 
 const COUNT_BUCKETS = [
-  { key: 'red', label: 'Avoid', className: 'ds-text-red' },
-  { key: 'yellow', label: 'Limit', className: 'ds-text-amber' },
-  { key: 'green', label: 'Eat', className: 'ds-text-green' },
-  { key: 'unrecognised', label: 'Unknown', className: 'ds-text-unknown', optional: true },
+  { key: 'red', label: 'Avoid' },
+  { key: 'yellow', label: 'Limit' },
+  { key: 'green', label: 'Eat' },
+  { key: 'unrecognised', label: 'Unknown', optional: true },
 ];
 
-/* Plain-text form of the score-card subtitle. Always includes Avoid /
- * Limit / Eat — even at 0 — and appends Unknown only when that bucket
- * is non-empty. Unreadable results never call this. */
+/* Plain-text Avoid / Limit / Eat counts from analyser buckets. Always
+ * includes the three main buckets — even at 0 — and appends Unknown
+ * only when that bucket is non-empty. Unreadable results never call
+ * this. Kept as a helper for tests; the sheet no longer renders it. */
 export function bucketCountSubtitle(result) {
   const parts = [];
   for (const bucket of COUNT_BUCKETS) {
@@ -93,33 +85,6 @@ function el(tag, className, text) {
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
-}
-
-function buildCountSubtitle(result) {
-  const p = el('p', 'ds-verdict__subtitle');
-  const visible = COUNT_BUCKETS.filter(
-    (bucket) => !bucket.optional || result[bucket.key].length
-  );
-  visible.forEach((bucket, i) => {
-    if (i) p.appendChild(document.createTextNode(', '));
-    p.appendChild(
-      el('span', bucket.className, `${result[bucket.key].length} ${bucket.label}`)
-    );
-  });
-  return p;
-}
-
-function buildVerdict(spec, subtitleNode) {
-  const card = el('div', `ds-verdict ${spec.className}`);
-  const iconWrap = el('span', 'ds-verdict__icon');
-  iconWrap.appendChild(iconElement(spec.icon, { size: 'md' }));
-  card.appendChild(iconWrap);
-
-  const body = el('div', 'ds-verdict__body');
-  body.appendChild(el('p', 'ds-verdict__title', spec.title));
-  body.appendChild(subtitleNode || el('p', 'ds-verdict__subtitle', spec.subtitle));
-  card.appendChild(body);
-  return card;
 }
 
 function shareLabel(spec, shares) {
@@ -153,6 +118,13 @@ function buildGauge(spec, shares) {
   wrap.appendChild(buildCentre(spec));
   row.appendChild(wrap);
   return row;
+}
+
+function buildUnreadNote(spec) {
+  const note = el('div', 'results-unread');
+  note.appendChild(el('p', 'ds-headline', spec.title));
+  note.appendChild(el('p', 'ds-footnote ds-text-secondary', spec.subtitle));
+  return note;
 }
 
 function buildIngredientRow(item, tone) {
@@ -228,14 +200,13 @@ export function render(result, container, opts = {}) {
 
   if (result.status === 'unreadable') {
     const spec = VERDICTS.unknown;
-    container.appendChild(buildVerdict(spec));
     container.appendChild(buildGauge(spec));
+    container.appendChild(buildUnreadNote(spec));
     if (rawText) container.appendChild(buildRawText(rawText));
     return;
   }
 
   const spec = VERDICTS[result.verdict];
-  container.appendChild(buildVerdict(spec, buildCountSubtitle(result)));
   container.appendChild(buildGauge(spec, bucketShares(result)));
 
   if (result.verdict === 'yellow') {

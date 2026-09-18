@@ -501,11 +501,11 @@ test(
 );
 
 // =====================================================================
-console.log('\nResults header counts');
+console.log('\nBucket counts');
 // =====================================================================
 
 test(
-  'score-card subtitle lists Avoid, Limit, Eat and Unknown from analyser buckets',
+  'bucket counts list Avoid, Limit, Eat and Unknown from analyser buckets',
   `Ingrédients: protéines de lait, inuline, maltitol, cacao, amandes,
    arôme naturel, sel, E471.`,
   (r) => {
@@ -523,7 +523,7 @@ test(
 );
 
 test(
-  'score-card subtitle keeps zero Avoid/Limit and omits empty Unknown',
+  'bucket counts keep zero Avoid/Limit and omit empty Unknown',
   'Ingrédients: riz, eau, huile de tournesol, sel, acide citrique.',
   (r) => {
     if (r.red.length || r.yellow.length || r.unrecognised.length) {
