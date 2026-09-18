@@ -84,11 +84,34 @@ if (initial) {
 
 /* Offline support, so it still works in a shop with no signal.
  * Registered with a relative path because GitHub Pages serves this from a
- * /repo-name/ subdirectory, not the domain root. */
+ * /repo-name/ subdirectory, not the domain root.
+ *
+ * EXPECTED_CACHE must match CACHE_VERSION in sw.js. If an older worker
+ * is still installed, drop it and reload so a cached index.html from
+ * before the camera UI cannot hide the Scan button. */
+const EXPECTED_CACHE = 'fodmap-v5';
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {
-      /* Offline mode is a nice-to-have; ignore failures. */
-    });
+    caches
+      .keys()
+      .then((keys) => {
+        const stale = keys.filter(
+          (key) => key.startsWith('fodmap-v') && key !== EXPECTED_CACHE
+        );
+        if (!stale.length) {
+          return navigator.serviceWorker.register('./sw.js');
+        }
+        return navigator.serviceWorker
+          .getRegistrations()
+          .then((regs) => Promise.all(regs.map((reg) => reg.unregister())))
+          .then(() => Promise.all(stale.map((key) => caches.delete(key))))
+          .then(() => {
+            location.reload();
+          });
+      })
+      .catch(() => {
+        /* Offline mode is a nice-to-have; ignore failures. */
+      });
   });
 }

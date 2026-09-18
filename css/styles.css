@@ -154,6 +154,7 @@ html, body {
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
+  position: relative;
 }
 
 /* Hidden, but still focusable-by-proxy and still in the layout flow at
@@ -183,8 +184,11 @@ html, body {
 
 .button--capture {
   min-height: var(--control-height-primary, 60px);
-  background: var(--color-brand-lime-button);
-  color: var(--color-ink-pill);
+  /* Hex fallbacks: if tokens.css fails to load (or an old SW serves this
+   * sheet without that file), the CTA must still be lime-on-black, not
+   * transparent-on-transparent. */
+  background: var(--color-brand-lime-button, #92C323);
+  color: var(--color-ink-pill, #000000);
   font-size: 1.15rem;
   font-weight: 700;
 }

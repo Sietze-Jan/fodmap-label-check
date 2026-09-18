@@ -15,7 +15,7 @@
  * /repo-name/ subdirectory rather than the domain root.
  * ===================================================================== */
 
-const CACHE_VERSION = 'fodmap-v4';
+const CACHE_VERSION = 'fodmap-v5';
 
 /* ---------------------------------------------------------------------
  * THE OCR CACHE — a second cache, on purpose
@@ -117,9 +117,11 @@ self.addEventListener('activate', (event) => {
 });
 
 /* ---------------------------------------------------------------------
- * Cache-first, with a separate branch for the OCR assets.
+ * Documents are network-first (so a markup change cannot get stuck
+ * behind an old cache). Everything else is cache-first, with a
+ * separate branch for the OCR assets.
  *
- * The two branches exist because the index.html fallback below is only
+ * The OCR branch exists because the index.html fallback below is only
  * ever right for same-origin requests. Handing an HTML document to a
  * failed request for tesseract.min.js would turn a clean "text
  * recognition could not be downloaded" message into a syntax error, and
@@ -140,6 +142,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  /* HTML is network-first so a new camera UI (or any other markup
+   * change) cannot get stuck behind an old cache while the phone is
+   * online. Everything else stays cache-first: CSS/JS are versioned
+   * by CACHE_VERSION, and offline still falls back to the last good
+   * index.html. */
+  const isDocument =
+    request.mode === 'navigate' ||
+    request.destination === 'document' ||
+    url.pathname.endsWith('/') ||
+    url.pathname.endsWith('/index.html');
+
+  if (isDocument) {
+    event.respondWith(networkFirstDocument(request));
+    return;
+  }
+
   event.respondWith(
     caches.match(request, { ignoreSearch: true }).then((cached) => {
       if (cached) return cached;
@@ -147,6 +165,22 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+async function networkFirstDocument(request) {
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      const cache = await caches.open(CACHE_VERSION);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    return (
+      (await caches.match(request, { ignoreSearch: true })) ||
+      (await caches.match('./index.html'))
+    );
+  }
+}
 
 async function cacheOcrAsset(request) {
   const cached = await caches.match(request, { cacheName: OCR_CACHE });

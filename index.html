@@ -107,6 +107,28 @@
 
   </main>
 
+  <!-- Inline on purpose: if an old service worker is still serving a
+       cached app.js from before the camera UI, the module below never
+       gets a chance to unregister it. This runs from the HTML itself. -->
+  <script>
+    window.FODMAP_CACHE = 'fodmap-v5';
+    if ('serviceWorker' in navigator) {
+      caches.keys().then(function (keys) {
+        var stale = keys.filter(function (key) {
+          return key.indexOf('fodmap-v') === 0 && key !== window.FODMAP_CACHE;
+        });
+        if (!stale.length) return;
+        return navigator.serviceWorker.getRegistrations()
+          .then(function (regs) {
+            return Promise.all(regs.map(function (reg) { return reg.unregister(); }));
+          })
+          .then(function () {
+            return Promise.all(stale.map(function (key) { return caches.delete(key); }));
+          })
+          .then(function () { location.reload(); });
+      });
+    }
+  </script>
   <script type="module" src="./js/app.js"></script>
 </body>
 </html>
