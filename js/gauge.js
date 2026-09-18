@@ -45,14 +45,13 @@
  * ---------------------------------------------------------------------
  * USING IT
  * ---------------------------------------------------------------------
- *   import { gauge, gaugeDiscrete } from './gauge.js';
+ *   import { gauge, gaugeDiscrete, gaugeShares } from './gauge.js';
  *
  *   el.innerHTML =
  *     `<div class="ds-gauge">` +
- *       gauge(0.72, { variant: 'arc' }) +
+ *       gaugeShares({ green: 5, amber: 2, red: 1 }, { variant: 'ring' }) +
  *       `<div class="ds-gauge__centre">` +
- *         `<span class="ds-gauge__value">72</span>` +
- *         `<span class="ds-gauge__caption">Good</span>` +
+ *         `<span class="ds-gauge__centre-word ds-text-red">Avoid</span>` +
  *       `</div>` +
  *     `</div>`;
  *
@@ -197,6 +196,97 @@ export function gaugeDiscrete(level = 'unknown', opts = {}) {
       }
     }
   });
+
+  return svgWrap(classes, dots.join(''), opts);
+}
+
+/**
+ * gaugeShares(shares, opts) -> SVG markup as a string.
+ *
+ * A dotted donut of the same geometry as gauge(). Each share paints a
+ * wedge; together they fill the ring. Values are relative weights —
+ * ingredient counts, grams, or percents — and are normalised so the
+ * painted wedges sum to the full sweep. Zero shares are omitted.
+ * If every share is 0 the dots stay on the grey track: that is the
+ * can't-read state, not a fake unknown wedge.
+ *
+ * shares.green / .amber / .red / .unknown
+ *        (`.yellow` is accepted as an alias of `.amber`)
+ * opts.variant  'arc' | 'ring'  (default 'ring')
+ * opts.gap      dark fraction between wedges (default 0.02)
+ *
+ * The centre label is HTML (Eat / Limit / Avoid), not part of this SVG.
+ */
+const SHARE_KEYS = [
+  { key: 'green', state: 'ds-gauge__dot--green' },
+  { key: 'amber', state: 'ds-gauge__dot--amber' },
+  { key: 'red', state: 'ds-gauge__dot--red' },
+  { key: 'unknown', state: 'ds-gauge__dot--unknown' },
+];
+
+function shareValue(shares, key) {
+  const raw = key === 'amber' ? (shares.amber ?? shares.yellow) : shares[key];
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+function shareRanges(shares, gap) {
+  const values = SHARE_KEYS.map((entry) => ({
+    ...entry,
+    value: shareValue(shares, entry.key),
+  }));
+  const painted = values.filter((entry) => entry.value > 0);
+  if (painted.length === 0) return [];
+
+  const total = painted.reduce((sum, entry) => sum + entry.value, 0);
+  if (total <= 0) return [];
+
+  const parts = painted.map((entry) => ({
+    ...entry,
+    frac: entry.value / total,
+  }));
+
+  const gapCount = parts.length > 1 ? parts.length : 0;
+  const gapTotal = Math.min(0.4, gap * gapCount);
+  const available = 1 - gapTotal;
+  const scale = available;
+
+  const ranges = [];
+  let t = 0;
+  parts.forEach((part, i) => {
+    const span = part.frac * scale;
+    ranges.push({ state: part.state, from: t, to: t + span });
+    t += span;
+    if (i < gapCount) t += gapTotal / gapCount;
+  });
+  return ranges;
+}
+
+function stateAt(t, ranges) {
+  for (const range of ranges) {
+    if (t >= range.from && t < range.to) return range.state;
+  }
+  return 'ds-gauge__dot--off';
+}
+
+export function gaugeShares(shares = {}, opts = {}) {
+  const variant = VARIANTS[opts.variant] || VARIANTS.ring;
+  const gap = opts.gap == null ? 0.02 : Math.max(0, Number(opts.gap) || 0);
+  const ranges = shareRanges(shares, gap);
+
+  const classes = ['ds-gauge__svg', 'ds-gauge__svg--shares'];
+  if (opts.className) classes.push(opts.className);
+
+  const dots = [];
+  for (const ring of ringsFor(variant.sweep)) {
+    for (let i = 0; i < ring.count; i += 1) {
+      const t = (i + 0.5 + ring.offset) / ring.count;
+      if (t > 1) continue;
+      const state = ranges.length ? stateAt(t, ranges) : 'ds-gauge__dot--off';
+      if (state === 'ds-gauge__dot--off' && ranges.length) continue;
+      dots.push(dot(ring.r, t, variant, state));
+    }
+  }
 
   return svgWrap(classes, dots.join(''), opts);
 }

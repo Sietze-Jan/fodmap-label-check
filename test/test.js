@@ -20,7 +20,7 @@
 import { analyse, normalise, getPreparedEntries } from '../js/analyse.js';
 import { groupFoods, filterFoods, FOODS } from '../js/foods.js';
 import { INGREDIENTS } from '../js/ingredients.js';
-import { bucketCountSubtitle } from '../js/render.js';
+import { bucketCountSubtitle, bucketShares } from '../js/render.js';
 import { gaugeShares } from '../js/gauge.js';
 
 let passed = 0;
@@ -540,80 +540,55 @@ test(
 );
 
 // =====================================================================
-console.log('\nComposition per 100g');
+console.log('\nShare ring');
 // =====================================================================
 
-function compositionTotal(result) {
-  const c = result.composition;
-  return c.green + c.yellow + c.red + c.unknown;
+function wedgeCounts(svg) {
+  const count = (name) => (svg.match(new RegExp(`ds-gauge__dot--${name}`, 'g')) || []).length;
+  return {
+    green: count('green'),
+    amber: count('amber'),
+    red: count('red'),
+    unknown: count('unknown'),
+    off: count('off'),
+  };
 }
 
 test(
-  'QUID percentages become grams per 100g',
-  'Ingrédients: tomates 80%, oignon 12%, sel, basilic.',
+  'share ring uses Avoid/Limit/Eat counts and ignores Unknown',
+  `Ingrédients: protéines de lait, inuline, maltitol, cacao, amandes,
+   arôme naturel, sel, E471.`,
   (r) => {
-    if (Math.abs(compositionTotal(r) - 100) > 0.05) {
-      throw new Error(`composition should sum to 100g, got ${compositionTotal(r)}`);
-    }
-    if (r.composition.red < 11 || r.composition.red > 13) {
-      throw new Error(`onion at 12% should be ~12g red, got ${r.composition.red}`);
-    }
-    if (r.composition.green < 86 || r.composition.green > 90) {
-      throw new Error(`expected ~88g green, got ${r.composition.green}`);
-    }
-    if (r.composition.yellow !== 0) {
-      throw new Error(`expected no amber share, got ${r.composition.yellow}`);
-    }
-  }
-);
-
-test(
-  'earlier ingredients weigh more when the label has no %',
-  'Ingrédients: oignon, riz.',
-  (r) => {
-    if (r.composition.red <= r.composition.green) {
+    if (!(r.red.length && r.yellow.length && r.green.length && r.unrecognised.length)) {
       throw new Error(
-        `first-listed onion should outweigh rice; red=${r.composition.red} green=${r.composition.green}`
+        `fixture must fill every bucket; got red=${r.red.length} yellow=${r.yellow.length} green=${r.green.length} unrecognised=${r.unrecognised.length}`
       );
     }
-    if (r.composition.red < 60 || r.composition.red > 70) {
-      throw new Error(`2/3 of a two-item list should be ~67g, got ${r.composition.red}`);
+    const shares = bucketShares(r);
+    if (shares.red !== r.red.length || shares.amber !== r.yellow.length || shares.green !== r.green.length) {
+      throw new Error(`bucketShares ${JSON.stringify(shares)} did not match analyser counts`);
+    }
+    if ('unknown' in shares) {
+      throw new Error('Unknown must not be a share key');
     }
   }
 );
 
 test(
-  'trace-region onion stays small even when always flagged',
-  'Ingrédients: riz, eau, huile de tournesol, sel, dont moins de 2%: oignon.',
-  (r, t) => {
-    t.flagged(r, 'red', 'Onion');
-    if (r.composition.red > 3) {
-      throw new Error(`trace onion should be capped near 2g, got ${r.composition.red}`);
-    }
-    if (r.composition.green < 95) {
-      throw new Error(`expected mostly green, got ${r.composition.green}`);
-    }
-  }
-);
-
-test(
-  'trilingual panels are not counted three times',
-  `Ingrédients: tomates 90%, oignon 10%.
-   Zutaten: Tomaten 90%, Zwiebel 10%.
-   Ingredienti: pomodori 90%, cipolla 10%.`,
-  (r) => {
-    if (r.composition.red < 9 || r.composition.red > 11) {
-      throw new Error(`should keep the first panel's 10% onion, got ${r.composition.red}`);
-    }
-  }
-);
-
-test(
-  'unreadable results fill the ring as unknown',
+  'unreadable results contribute no shares, so the ring stays grey',
   'xyz',
   (r) => {
-    if (r.composition.unknown !== 100) {
-      throw new Error(`expected 100g unknown, got ${JSON.stringify(r.composition)}`);
+    const shares = bucketShares(r);
+    if (shares.green || shares.amber || shares.red) {
+      throw new Error(`expected empty shares, got ${JSON.stringify(shares)}`);
+    }
+    const svg = gaugeShares(shares, { variant: 'ring' });
+    const wedges = wedgeCounts(svg);
+    if (wedges.green || wedges.amber || wedges.red || wedges.unknown) {
+      throw new Error(`unreadable ring should not paint a fake wedge, got ${JSON.stringify(wedges)}`);
+    }
+    if (wedges.off < 100) {
+      throw new Error(`expected a grey track, got ${wedges.off} off dots`);
     }
   }
 );
@@ -623,18 +598,33 @@ test(
   'x',
   () => {
     const svg = gaugeShares({ green: 70, amber: 20, red: 10 }, { variant: 'ring' });
-    const count = (name) => (svg.match(new RegExp(`ds-gauge__dot--${name}`, 'g')) || []).length;
-    const green = count('green');
-    const amber = count('amber');
-    const red = count('red');
-    const total = green + amber + red;
+    const wedges = wedgeCounts(svg);
+    const total = wedges.green + wedges.amber + wedges.red;
     if (total < 100) throw new Error(`expected a dense ring, got ${total} dots`);
-    const g = green / total;
-    const a = amber / total;
-    const d = red / total;
+    const g = wedges.green / total;
+    const a = wedges.amber / total;
+    const d = wedges.red / total;
     if (g < 0.62 || g > 0.78) throw new Error(`green wedge ${g} off 0.70`);
     if (a < 0.12 || a > 0.28) throw new Error(`amber wedge ${a} off 0.20`);
     if (d < 0.04 || d > 0.16) throw new Error(`red wedge ${d} off 0.10`);
+  }
+);
+
+test(
+  'ingredient counts fill the ring rather than sitting as percents of 100',
+  'x',
+  () => {
+    const svg = gaugeShares({ green: 2, amber: 1, red: 1 }, { variant: 'ring' });
+    const wedges = wedgeCounts(svg);
+    const total = wedges.green + wedges.amber + wedges.red;
+    if (total < 100) throw new Error(`counts should fill the ring, got ${total} coloured dots`);
+    const g = wedges.green / total;
+    const a = wedges.amber / total;
+    const d = wedges.red / total;
+    if (g < 0.40 || g > 0.60) throw new Error(`green count share ${g} off 0.50`);
+    if (a < 0.15 || a > 0.35) throw new Error(`amber count share ${a} off 0.25`);
+    if (d < 0.15 || d > 0.35) throw new Error(`red count share ${d} off 0.25`);
+    if (wedges.unknown) throw new Error('unknown should be omitted unless passed');
   }
 );
 

@@ -1771,7 +1771,8 @@ function buildSections() {
       'of <code>&lt;circle&gt;</code>s; colour stays in <code>components.css</code>, because a JS file ' +
       'writing <code>fill="#E68617"</code> would have smuggled a colour literal past the token system. ' +
       '<strong>The scan result ships <code>gaugeShares</code> on the closed ring</strong> — a dotted ' +
-      'donut of Eat / Limit / Avoid per 100g, not a fake 0–100 score.',
+      'donut of Eat / Limit / Avoid <em>counts</em>, not a fake 0–100 score. Unknown items are left ' +
+      'off the ring. The centre is the verdict word (Eat / Limit / Avoid); unreadable stays grey, with no fake wedge.',
     items: [
       {
         name: 'gauge(value, { variant: "arc" })',
@@ -1823,23 +1824,15 @@ function buildSections() {
       {
         name: 'gaugeShares({ green, amber, red }) — the variant to ship',
         note:
-          'A dotted donut on the closed ring. Wedge sizes are grams per 100g of Eat / Limit / Avoid, ' +
-          'so a first-listed tomato paste fills most of the ring and a last-listed onion powder is a sliver. ' +
-          'The centre still holds the verdict; the ring holds the mix.',
+          'A dotted donut on the closed ring. Wedge sizes are Avoid / Limit / Eat counts from the scan, ' +
+          'normalised to fill the ring. Unknown is omitted so it cannot steal a slice. ' +
+          'The centre is the overall verdict word — Eat, Limit, or Avoid — not “per 100g”.',
         demo: ['center', 'card'],
         html: `
-          <div class="ds-stack ds-stack--3" style="align-items: center">
-            <div class="ds-gauge">
-              {{gauge-shares:62:28:10}}
-              <div class="ds-gauge__centre">
-                <span class="ds-gauge__caption ds-headline ds-text-amber">Limit</span>
-                <span class="ds-gauge__caption">per 100g</span>
-              </div>
-            </div>
-            <div class="ds-gauge-legend">
-              <span class="ds-gauge-legend__item ds-text-green"><span class="ds-dot ds-dot--green"></span>62% Eat</span>
-              <span class="ds-gauge-legend__item ds-text-amber"><span class="ds-dot ds-dot--amber"></span>28% Limit</span>
-              <span class="ds-gauge-legend__item ds-text-red"><span class="ds-dot ds-dot--red"></span>10% Avoid</span>
+          <div class="ds-gauge">
+            {{gauge-shares:3:2:4}}
+            <div class="ds-gauge__centre">
+              <span class="ds-gauge__centre-word ds-text-red">Avoid</span>
             </div>
           </div>`,
       },

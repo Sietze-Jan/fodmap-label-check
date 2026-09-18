@@ -132,7 +132,7 @@
        cached app.js from before the camera UI, the module below never
        gets a chance to unregister it. This runs from the HTML itself. -->
   <script>
-    window.FODMAP_CACHE = 'fodmap-v14';
+    window.FODMAP_CACHE = 'fodmap-v15';
     if ('serviceWorker' in navigator) {
       caches.keys().then(function (keys) {
         var stale = keys.filter(function (key) {

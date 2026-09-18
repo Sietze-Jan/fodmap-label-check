@@ -1929,6 +1929,7 @@
 
 .ds-dot--green   { background: var(--color-semantic-green); }
 .ds-dot--amber   { background: var(--color-semantic-amber); }
+.ds-dot--red     { background: var(--color-semantic-red); }
 .ds-dot--unknown { background: var(--color-semantic-unknown); }
 .ds-dot--lg { width: var(--space-3); height: var(--space-3); }
 
@@ -2435,6 +2436,33 @@
   color: var(--color-text-secondary);
 }
 
+/* Verdict word inside the shares ring. Title 2 (22pt) fits Eat / Limit /
+ * Avoid in the hole at the default 192px size; a second line would not. */
+.ds-gauge__centre-word {
+  font-family: var(--type-font-family);
+  font-size: var(--type-title2-size);
+  font-weight: var(--type-title2-weight);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.ds-gauge--sm .ds-gauge__centre-word {
+  font-size: var(--type-headline-size);
+  font-weight: var(--type-headline-weight);
+}
+
+/* Unreadable / unknown: a grey disc instead of a cramped word. */
+.ds-gauge__centre-dot {
+  width: 32%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-pill);
+  background: var(--color-semantic-unknown);
+}
+
+.ds-gauge__centre-dot--red   { background: var(--color-semantic-red); }
+.ds-gauge__centre-dot--amber { background: var(--color-semantic-amber); }
+.ds-gauge__centre-dot--green { background: var(--color-semantic-green); }
+
 .ds-gauge__scale {
   display: flex;
   justify-content: space-between;
@@ -2460,14 +2488,32 @@
 .ds-gauge__dot--s10 { fill: var(--color-semantic-green);  fill: color-mix(in srgb, var(--color-semantic-yellow) 20%, var(--color-semantic-green)); }
 .ds-gauge__dot--s11 { fill: var(--color-semantic-green); }
 
-/* -- the discrete variant --------------------------------------------
- * Three segments, one lit. This is the honest dial for an app whose
- * classifier answers in four buckets rather than in scores. */
+/* -- the discrete / shares variants ----------------------------------
+ * Named colours for the three FODMAP buckets, plus unknown. Used by
+ * gaugeDiscrete() (one segment lit) and gaugeShares() (a dotted donut). */
 .ds-gauge__dot--red   { fill: var(--color-semantic-red); }
 .ds-gauge__dot--amber { fill: var(--color-semantic-amber); }
 .ds-gauge__dot--green { fill: var(--color-semantic-green); }
+.ds-gauge__dot--unknown { fill: var(--color-semantic-unknown); }
 
 .ds-gauge__svg--monotone .ds-gauge__dot { fill: currentColor; }
+
+.ds-gauge-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.ds-gauge-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--type-font-family);
+  font-size: var(--type-footnote-size);
+  line-height: var(--type-footnote-line);
+  font-variant-numeric: tabular-nums;
+}
 
 /* The verdict chip that goes in the middle of a discrete gauge, or on
  * its own at the top of a result — the alternative to a dial entirely. */

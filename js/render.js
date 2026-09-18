@@ -17,7 +17,7 @@
  * ===================================================================== */
 
 import { iconElement } from './icons.js';
-import { gaugeDiscrete } from './gauge.js';
+import { gaugeShares } from './gauge.js';
 
 const VERDICTS = {
   red: {
@@ -76,6 +76,17 @@ export function bucketCountSubtitle(result) {
   return parts.join(', ');
 }
 
+/* Eat / Limit / Avoid counts for gaugeShares(). Unknown is omitted so
+ * unrecognised tokens cannot stretch the ring. Unreadable results are
+ * all zeros — the dial then stays on the grey track. */
+export function bucketShares(result) {
+  return {
+    green: result.green.length,
+    amber: result.yellow.length,
+    red: result.red.length,
+  };
+}
+
 /* Small helper so we never build HTML from label text by concatenation. */
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -111,18 +122,35 @@ function buildVerdict(spec, subtitleNode) {
   return card;
 }
 
-function buildGauge(spec) {
+function shareLabel(spec, shares) {
+  return `${spec.title}. ${shares.red} Avoid, ${shares.amber} Limit, ${shares.green} Eat`;
+}
+
+function buildCentre(spec) {
+  const centre = el('div', 'ds-gauge__centre');
+  if (spec.gauge === 'unknown') {
+    const dot = el('span', 'ds-gauge__centre-dot');
+    dot.setAttribute('aria-hidden', 'true');
+    centre.appendChild(dot);
+    return centre;
+  }
+  const wordClass = spec.captionClass
+    ? `ds-gauge__centre-word ${spec.captionClass}`
+    : 'ds-gauge__centre-word';
+  centre.appendChild(el('span', wordClass, spec.caption));
+  return centre;
+}
+
+function buildGauge(spec, shares) {
   const row = el('div', 'results-gauge');
   const wrap = el('div', 'ds-gauge');
-  wrap.innerHTML = gaugeDiscrete(spec.gauge, { label: spec.title });
+  const painted = shares || { green: 0, amber: 0, red: 0 };
 
-  const centre = el('div', 'ds-gauge__centre');
-  const captionClass = spec.captionClass
-    ? `ds-gauge__caption ds-headline ${spec.captionClass}`
-    : 'ds-gauge__caption ds-headline';
-  centre.appendChild(el('span', captionClass, spec.caption));
-  wrap.appendChild(centre);
-
+  wrap.innerHTML = gaugeShares(painted, {
+    variant: 'ring',
+    label: shares ? shareLabel(spec, painted) : spec.title,
+  });
+  wrap.appendChild(buildCentre(spec));
   row.appendChild(wrap);
   return row;
 }
@@ -208,7 +236,7 @@ export function render(result, container, opts = {}) {
 
   const spec = VERDICTS[result.verdict];
   container.appendChild(buildVerdict(spec, buildCountSubtitle(result)));
-  container.appendChild(buildGauge(spec));
+  container.appendChild(buildGauge(spec, bucketShares(result)));
 
   if (result.verdict === 'yellow') {
     const alert = el('div', 'ds-alert ds-alert--amber');
