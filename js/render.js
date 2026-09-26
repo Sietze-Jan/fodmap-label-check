@@ -4,7 +4,8 @@
  *
  * This is the only module that fills the results sheet. It takes the
  * plain object returned by analyse() and builds design-system markup:
- * the share gauge first, then grouped ingredient lists.
+ * a .ds-verdict card first (High risk / Watch / Low risk), then grouped
+ * ingredient lists.
  *
  * Nothing here decides what is safe to eat — that all lives in
  * ingredients.js and analyse.js. If a verdict looks wrong, fix the data,
@@ -12,38 +13,45 @@
  *
  * Analyser buckets stay red / yellow / green / unrecognised. The design
  * system names the middle state "amber" and paints the high state with
- * the red token (orange is the sampled progress-bar high, used as the
- * amber icon ink). Mapping happens only here.
+ * the red token. Mapping happens only here.
+ *
+ * The overall card is a presence rating, not a serving-size rating.
+ * Unknown tokens block a Low risk call. Gram limits stay in Monash.
  *
  * ===================================================================== */
 
 import { iconElement } from './icons.js';
-import { gaugeShares } from './gauge.js';
 
 const VERDICTS = {
   red: {
-    gauge: 'red',
-    caption: 'Avoid',
-    captionClass: 'ds-text-red',
-    title: 'Avoid',
+    tone: 'red',
+    icon: 'close',
+    title: 'High risk',
+    subtitle: 'Contains high-FODMAP ingredients.',
   },
   yellow: {
-    gauge: 'amber',
-    caption: 'Limit',
-    captionClass: 'ds-text-amber',
-    title: 'Limit',
+    tone: 'amber',
+    icon: 'warning-triangle',
+    title: 'Watch',
+    subtitle: 'Check the green serve in the Monash app.',
   },
   green: {
-    gauge: 'green',
-    caption: 'Eat',
-    captionClass: 'ds-text-green',
-    title: 'Eat',
+    tone: 'green',
+    icon: 'check',
+    title: 'Low risk',
+    subtitle: 'No high-FODMAP ingredients recognised.',
   },
-  unknown: {
-    gauge: 'unknown',
+  incomplete: {
+    tone: 'unknown',
+    icon: 'question-circle',
+    title: 'Not sure yet',
+    subtitle: 'Some ingredients aren’t in the list — treat them as unknown.',
+  },
+  unreadable: {
+    tone: 'unknown',
+    icon: 'question-circle',
     title: 'Can’t read the label',
-    subtitle:
-      'Take the photo again: closer, flatter, and with more light. Aim at the ingredient list on the back, not the front of the pack.',
+    subtitle: 'Take the photo again: closer, flatter, and with more light.',
   },
 };
 
@@ -68,15 +76,27 @@ export function bucketCountSubtitle(result) {
   return parts.join(', ');
 }
 
-/* Eat / Limit / Avoid counts for gaugeShares(). Unknown is omitted so
- * unrecognised tokens cannot stretch the ring. Unreadable results are
- * all zeros — the dial then stays on the grey track. */
-export function bucketShares(result) {
-  return {
-    green: result.green.length,
-    amber: result.yellow.length,
-    red: result.red.length,
-  };
+/* Overall card state. Unknown tokens must not look like a pass, even
+ * when every recognised ingredient is green. */
+export function displayVerdict(result) {
+  if (!result || result.status === 'unreadable') return 'unreadable';
+  if (result.red.length) return 'red';
+  if (result.yellow.length) return 'yellow';
+  if (result.unrecognised.length) return 'incomplete';
+  return 'green';
+}
+
+/* Red is two different pieces of advice: concentrated triggers versus
+ * foods that are high in a typical serve but may be fine in a smaller
+ * amount. alwaysFlag is the analyser’s existing pinch-amount marker. */
+export function splitRed(items) {
+  const pinch = [];
+  const serve = [];
+  for (const item of items || []) {
+    if (item.alwaysFlag) pinch.push(item);
+    else serve.push(item);
+  }
+  return { pinch, serve };
 }
 
 /* Small helper so we never build HTML from label text by concatenation. */
@@ -87,44 +107,20 @@ function el(tag, className, text) {
   return node;
 }
 
-function shareLabel(spec, shares) {
-  return `${spec.title}. ${shares.red} Avoid, ${shares.amber} Limit, ${shares.green} Eat`;
-}
+function buildVerdict(spec) {
+  const card = el('div', `ds-verdict ds-verdict--${spec.tone}`);
+  card.setAttribute('role', 'status');
 
-function buildCentre(spec) {
-  const centre = el('div', 'ds-gauge__centre');
-  if (spec.gauge === 'unknown') {
-    const dot = el('span', 'ds-gauge__centre-dot');
-    dot.setAttribute('aria-hidden', 'true');
-    centre.appendChild(dot);
-    return centre;
-  }
-  const wordClass = spec.captionClass
-    ? `ds-gauge__centre-word ${spec.captionClass}`
-    : 'ds-gauge__centre-word';
-  centre.appendChild(el('span', wordClass, spec.caption));
-  return centre;
-}
+  const iconWrap = el('span', 'ds-verdict__icon');
+  iconWrap.setAttribute('aria-hidden', 'true');
+  iconWrap.appendChild(iconElement(spec.icon, { size: 'md' }));
+  card.appendChild(iconWrap);
 
-function buildGauge(spec, shares) {
-  const row = el('div', 'results-gauge');
-  const wrap = el('div', 'ds-gauge');
-  const painted = shares || { green: 0, amber: 0, red: 0 };
-
-  wrap.innerHTML = gaugeShares(painted, {
-    variant: 'ring',
-    label: shares ? shareLabel(spec, painted) : spec.title,
-  });
-  wrap.appendChild(buildCentre(spec));
-  row.appendChild(wrap);
-  return row;
-}
-
-function buildUnreadNote(spec) {
-  const note = el('div', 'results-unread');
-  note.appendChild(el('p', 'ds-headline', spec.title));
-  note.appendChild(el('p', 'ds-footnote ds-text-secondary', spec.subtitle));
-  return note;
+  const body = el('div', 'ds-verdict__body');
+  body.appendChild(el('p', 'ds-verdict__title', spec.title));
+  body.appendChild(el('p', 'ds-verdict__subtitle', spec.subtitle));
+  card.appendChild(body);
+  return card;
 }
 
 function buildIngredientRow(item, tone) {
@@ -197,42 +193,38 @@ export function render(result, container, opts = {}) {
   container.hidden = false;
 
   const rawText = (opts.rawText || result.normalisedText || '').trim();
+  const key = displayVerdict(result);
+  const spec = VERDICTS[key];
 
-  if (result.status === 'unreadable') {
-    const spec = VERDICTS.unknown;
-    container.appendChild(buildGauge(spec));
-    container.appendChild(buildUnreadNote(spec));
+  container.appendChild(buildVerdict(spec));
+
+  if (key === 'unreadable') {
     if (rawText) container.appendChild(buildRawText(rawText));
     return;
   }
 
-  const spec = VERDICTS[result.verdict];
-  container.appendChild(buildGauge(spec, bucketShares(result)));
+  const { pinch, serve } = splitRed(result.red);
 
-  if (result.verdict === 'yellow') {
-    const alert = el('div', 'ds-alert ds-alert--amber');
-    const iconWrap = el('span', 'ds-alert__icon');
-    iconWrap.appendChild(iconElement('warning-triangle', { size: 'md' }));
-    alert.appendChild(iconWrap);
-    const body = el('div', 'ds-alert__body');
-    body.appendChild(
-      el(
-        'p',
-        'ds-alert__text',
-        'Check the portion size for the amber ingredients in the Monash FODMAP app — that is the only place with lab-tested serving limits.'
-      )
-    );
-    alert.appendChild(body);
-    container.appendChild(alert);
-  }
-
-  if (result.red.length) {
+  if (pinch.length) {
     container.appendChild(
       buildGroup({
         tone: 'red',
         titleClass: 'ds-text-red',
-        heading: 'Avoid',
-        items: result.red,
+        heading: 'Triggers in tiny amounts',
+        items: pinch,
+        note: 'Skip during elimination — even a pinch still counts.',
+      })
+    );
+  }
+
+  if (serve.length) {
+    container.appendChild(
+      buildGroup({
+        tone: 'red',
+        titleClass: 'ds-text-red',
+        heading: 'High in a normal serve',
+        items: serve,
+        note: 'Look it up in Monash for a smaller green serve.',
       })
     );
   }
@@ -242,9 +234,9 @@ export function render(result, container, opts = {}) {
       buildGroup({
         tone: 'amber',
         titleClass: 'ds-text-amber',
-        heading: 'Limit',
+        heading: 'Watch the portion',
         items: result.yellow,
-        note: 'Moderate, portion-dependent, or a vague term that can hide onion or garlic.',
+        note: 'Check the green serve in the Monash app — the only place with lab-tested limits.',
       })
     );
   }
@@ -254,7 +246,7 @@ export function render(result, container, opts = {}) {
       buildGroup({
         tone: 'green',
         titleClass: 'ds-text-green',
-        heading: 'Eat',
+        heading: 'Typically fine',
         items: result.green,
       })
     );

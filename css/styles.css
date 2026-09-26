@@ -335,34 +335,10 @@ body.is-results-open {
 }
 
 .results-body {
+  min-width: 0;
   gap: var(--space-5);
 }
 
-.results-gauge {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  padding-block: var(--space-4);
-}
-
-.results-gauge__note,
-.results-unread {
-  max-width: 22rem;
-  margin-inline: auto;
-  text-align: center;
-}
-
-.results-unread {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.results-unread p {
-  margin: 0;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .results-sheet.ds-sheet {

@@ -20,7 +20,7 @@
 import { analyse, normalise, getPreparedEntries } from '../js/analyse.js';
 import { groupFoods, filterFoods, FOODS } from '../js/foods.js';
 import { INGREDIENTS } from '../js/ingredients.js';
-import { bucketCountSubtitle, bucketShares } from '../js/render.js';
+import { bucketCountSubtitle, displayVerdict, splitRed } from '../js/render.js';
 import { gaugeShares } from '../js/gauge.js';
 
 let passed = 0;
@@ -749,6 +749,76 @@ test(
 );
 
 // =====================================================================
+console.log('\nResult card');
+// =====================================================================
+
+test(
+  'onion powder is a tiny-amount trigger, wheat is high in a normal serve',
+  'Ingrédients: farine de blé, sel, oignon en poudre, huile de tournesol.',
+  (r) => {
+    t.verdict(r, 'red');
+    if (displayVerdict(r) !== 'red') {
+      throw new Error(`displayVerdict was "${displayVerdict(r)}", expected "red"`);
+    }
+    const { pinch, serve } = splitRed(r.red);
+    if (!pinch.some((item) => item.label === 'Onion powder')) {
+      throw new Error(`expected Onion powder in pinch; got [${pinch.map((i) => i.label).join(', ')}]`);
+    }
+    if (!serve.some((item) => item.label === 'Wheat flour')) {
+      throw new Error(`expected Wheat flour in serve; got [${serve.map((i) => i.label).join(', ')}]`);
+    }
+    if (serve.some((item) => item.alwaysFlag) || pinch.some((item) => !item.alwaysFlag)) {
+      throw new Error('alwaysFlag items must stay in the pinch group');
+    }
+  }
+);
+
+test(
+  'unknown ingredients block a Low risk card',
+  'Ingrédients: riz, eau, huile de tournesol, sel, acide citrique, E471.',
+  (r) => {
+    t.verdict(r, 'green');
+    t.unrecognised(r, 'e471');
+    if (displayVerdict(r) !== 'incomplete') {
+      throw new Error(`displayVerdict was "${displayVerdict(r)}", expected "incomplete"`);
+    }
+  }
+);
+
+test(
+  'clean green labels stay Low risk',
+  'Ingrédients: riz, eau, huile de tournesol, sel, acide citrique.',
+  (r) => {
+    t.verdict(r, 'green');
+    if (r.unrecognised.length) {
+      throw new Error(`fixture should have no unknowns, got [${r.unrecognised.join(', ')}]`);
+    }
+    if (displayVerdict(r) !== 'green') {
+      throw new Error(`displayVerdict was "${displayVerdict(r)}", expected "green"`);
+    }
+  }
+);
+
+test(
+  'amber-only labels show Watch, not High risk',
+  'Ingrédients: riz, lait, sel, acide citrique.',
+  (r) => {
+    t.verdict(r, 'yellow');
+    t.flagged(r, 'yellow', 'Milk');
+    if (displayVerdict(r) !== 'yellow') {
+      throw new Error(`displayVerdict was "${displayVerdict(r)}", expected "yellow"`);
+    }
+  }
+);
+
+test('unreadable text stays Can’t read, not Low risk', 'xyz', (r) => {
+  t.status(r, 'unreadable');
+  if (displayVerdict(r) !== 'unreadable') {
+    throw new Error(`displayVerdict was "${displayVerdict(r)}", expected "unreadable"`);
+  }
+});
+
+// =====================================================================
 console.log('\nShare ring');
 // =====================================================================
 
@@ -762,45 +832,6 @@ function wedgeCounts(svg) {
     off: count('off'),
   };
 }
-
-test(
-  'share ring uses Avoid/Limit/Eat counts and ignores Unknown',
-  `Ingrédients: protéines de lait, inuline, maltitol, cacao, amandes,
-   arôme naturel, sel, E471.`,
-  (r) => {
-    if (!(r.red.length && r.yellow.length && r.green.length && r.unrecognised.length)) {
-      throw new Error(
-        `fixture must fill every bucket; got red=${r.red.length} yellow=${r.yellow.length} green=${r.green.length} unrecognised=${r.unrecognised.length}`
-      );
-    }
-    const shares = bucketShares(r);
-    if (shares.red !== r.red.length || shares.amber !== r.yellow.length || shares.green !== r.green.length) {
-      throw new Error(`bucketShares ${JSON.stringify(shares)} did not match analyser counts`);
-    }
-    if ('unknown' in shares) {
-      throw new Error('Unknown must not be a share key');
-    }
-  }
-);
-
-test(
-  'unreadable results contribute no shares, so the ring stays grey',
-  'xyz',
-  (r) => {
-    const shares = bucketShares(r);
-    if (shares.green || shares.amber || shares.red) {
-      throw new Error(`expected empty shares, got ${JSON.stringify(shares)}`);
-    }
-    const svg = gaugeShares(shares, { variant: 'ring' });
-    const wedges = wedgeCounts(svg);
-    if (wedges.green || wedges.amber || wedges.red || wedges.unknown) {
-      throw new Error(`unreadable ring should not paint a fake wedge, got ${JSON.stringify(wedges)}`);
-    }
-    if (wedges.off < 100) {
-      throw new Error(`expected a grey track, got ${wedges.off} off dots`);
-    }
-  }
-);
 
 test(
   'dotted donut paints wedges in proportion',

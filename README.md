@@ -325,6 +325,14 @@ To force a re-download: `caches.delete('fodmap-ocr-v1')` in the console.
 
 ## What it does and does not do
 
+**A single High / Watch / Low card, not a mix pie.** After a scan the top of
+the sheet is the `.ds-verdict` card: High risk if anything is red, Watch if
+only portion-dependent ingredients showed up, Low risk only when every
+recognised ingredient is typically fine. Unknown words block Low risk — they
+are not a pass. Avoid is split into *triggers in tiny amounts* (garlic, onion,
+inulin) and *high in a normal serve* (wheat, apple). Gram limits are not
+printed; amber and the normal-serve list send you to the Monash app.
+
 **Four buckets, not three.** Red, amber, green, and **Not recognised**. An
 ingredient the table does not know about is never silently treated as safe —
 that is the one failure mode that would actually be dangerous.

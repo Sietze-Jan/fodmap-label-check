@@ -1443,12 +1443,19 @@
 
 .ds-sheet__body {
   flex: 1 1 auto;
+  min-width: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: var(--space-4) var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+}
+
+.ds-sheet__body > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .ds-sheet__footer {
@@ -2044,6 +2051,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ds-list-group > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .ds-list-group + .ds-list-group { margin-top: var(--space-6); }
@@ -2063,6 +2077,7 @@
   font-size: var(--type-footnote-size);
   line-height: var(--type-footnote-line);
   color: var(--color-text-tertiary);
+  overflow-wrap: break-word;
 }
 
 .ds-list-row {
@@ -3163,9 +3178,11 @@
   --ds-verdict-ink: var(--color-semantic-unknown);
 
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-4);
 
+  width: 100%;
+  min-width: 0;
   padding: var(--space-5);
   background: var(--ds-verdict-fill);
   border: var(--border-width-selected) solid transparent;
@@ -3200,22 +3217,34 @@
 .ds-verdict--amber .ds-verdict__icon,
 .ds-verdict--green .ds-verdict__icon { color: var(--color-text-primary); }
 
-.ds-verdict__body { min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.ds-verdict__body {
+  min-width: 0;
+  flex: 1 1 auto;
+  /* Block, not a nested flex column: a <p> that is a flex item will not
+   * wrap below its own unwrapped line, which clips the subtitle on a
+   * 390px sheet. */
+}
 
 .ds-verdict__title {
   margin: 0;
+  min-width: 0;
+  max-width: 100%;
   font-size: var(--type-title1-size);
   font-weight: var(--type-title1-weight);
   line-height: var(--type-title1-line);
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
+  overflow-wrap: break-word;
 }
 
 .ds-verdict__subtitle {
-  margin: 0;
+  margin: var(--space-1) 0 0;
+  min-width: 0;
+  max-width: 100%;
   font-size: var(--type-subhead-size);
   line-height: var(--type-subhead-line);
   color: var(--color-text-secondary);
+  overflow-wrap: break-word;
 }
 
 /* ---------------------------------------------------------------------
